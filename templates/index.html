@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Password Manager - RAJAT</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════ PIN SCREEN ═══════════════════════════ -->
+<div id="pin-screen">
+  <h2>🔐 Password Manager</h2>
+  <p id="pin-label">Enter PIN to unlock</p>
+  <div id="pin-dots">
+    <div class="dot" id="d0"></div>
+    <div class="dot" id="d1"></div>
+    <div class="dot" id="d2"></div>
+    <div class="dot" id="d3"></div>
+  </div>
+  <div id="pin-keypad">
+    <button class="key" data-key="1">1</button>
+    <button class="key" data-key="2">2</button>
+    <button class="key" data-key="3">3</button>
+    <button class="key" data-key="4">4</button>
+    <button class="key" data-key="5">5</button>
+    <button class="key" data-key="6">6</button>
+    <button class="key" data-key="7">7</button>
+    <button class="key" data-key="8">8</button>
+    <button class="key" data-key="9">9</button>
+    <button class="key del" data-key="clear">CLR</button>
+    <button class="key" data-key="0">0</button>
+    <button class="key del" data-key="back">⌫</button>
+  </div>
+  <div id="pin-error"></div>
+  <button id="change-pin-btn">PIN Change Karein</button>
+</div>
+
+<!-- ════════════════════════════ MAIN APP ════════════════════════════ -->
+<div id="app" style="display:none">
+  <div class="topbar">
+    <h1>🔐 Password Manager</h1>
+    <div class="topbar-actions">
+      <button class="btn btn-success" id="btn-export">⬇ Export Excel</button>
+      <button class="btn btn-primary" id="btn-bulk-add">+ Bulk Entry</button>
+      <button class="btn btn-ghost" id="btn-single-add">+ Single Entry</button>
+      <button class="btn btn-ghost" id="btn-change-pin-app">🔑 PIN</button>
+      <button class="btn btn-danger" id="btn-lock">🔒 Lock</button>
+    </div>
+  </div>
+
+  <div id="tabs-bar">
+    <button id="add-category-btn">+ Category</button>
+  </div>
+
+  <div class="table-wrapper">
+    <div class="table-header">
+      <h3 id="current-cat-title">Category</h3>
+      <div>
+        <button class="btn btn-ghost btn-sm" id="btn-edit-cat">✏️ Rename</button>
+        <button class="btn btn-danger btn-sm" id="btn-del-cat">🗑 Delete</button>
+      </div>
+    </div>
+    <div id="table-area"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ TOAST ══════════════════════════════ -->
+<div id="toast"></div>
+
+<!-- ══════════════════════════ ENTRY MODAL ════════════════════════════ -->
+<div class="modal-overlay" id="entry-modal">
+  <div class="modal">
+    <h3 id="entry-modal-title">Entry Add Karein</h3>
+    <div id="entry-form-fields"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" data-close="entry-modal">Cancel</button>
+      <button class="btn btn-primary" id="btn-save-entry">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ CATEGORY MODAL ══════════════════════════ -->
+<div class="modal-overlay" id="cat-modal">
+  <div class="modal">
+    <h3 id="cat-modal-title">Naya Category Banayein</h3>
+    <div class="form-group">
+      <label>Category Name</label>
+      <input type="text" id="cat-name-input" placeholder="e.g. NREGA, Bank, Email">
+    </div>
+    <div class="form-group">
+      <label>Columns (fields) define karein</label>
+      <div id="col-fields"></div>
+      <button id="add-col-btn">+ Column Add Karein</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" data-close="cat-modal">Cancel</button>
+      <button class="btn btn-primary" id="btn-save-category">Category Banayein</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ CHANGE PIN MODAL ══════════════════════════ -->
+<div class="modal-overlay" id="pin-change-modal">
+  <div class="modal">
+    <h3>🔑 PIN Change Karein</h3>
+    <div class="form-group">
+      <label>Purana PIN (Old PIN)</label>
+      <input type="password" id="old-pin-input" maxlength="4"
+             placeholder="••••" inputmode="numeric" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label>Naya PIN (4 digit)</label>
+      <input type="password" id="new-pin-input" maxlength="4"
+             placeholder="••••" inputmode="numeric" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label>Confirm Naya PIN</label>
+      <input type="password" id="confirm-pin-input" maxlength="4"
+             placeholder="••••" inputmode="numeric" autocomplete="off">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" data-close="pin-change-modal">Cancel</button>
+      <button class="btn btn-primary" id="btn-save-pin">PIN Save Karein</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ BULK ENTRY MODAL ═══════════════════════════ -->
+<div class="modal-overlay" id="bulk-entry-modal">
+  <div class="modal modal-wide">
+    <h3 id="bulk-modal-title">📋 Bulk Entry Add Karein</h3>
+    <div class="bulk-table-wrap">
+      <table class="bulk-table">
+        <thead id="bulk-thead"></thead>
+        <tbody id="bulk-tbody"></tbody>
+      </table>
+    </div>
+    <div class="bulk-footer">
+      <button id="add-bulk-row-btn">+ Row Add Karein</button>
+      <span id="bulk-count-info"></span>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" data-close="bulk-entry-modal">Cancel</button>
+      <button class="btn btn-primary" id="btn-save-bulk">Save All Entries</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ SCRIPTS ══════════════════════════════ -->
+<script src="/static/js/pin.js"></script>
+<script src="/static/js/categories.js"></script>
+<script src="/static/js/entries.js"></script>
+<script src="/static/js/export.js"></script>
+<script src="/static/js/app.js"></script>
+</body>
+</html>

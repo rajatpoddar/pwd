@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+.Python
+venv/
+env/
+.venv/
+ENV/
+pip-log.txt
+
+# Sensitive data — NEVER commit passwords or PIN
+data/passwords.json
+data/pin.json
+data/
+
+# Environment
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
