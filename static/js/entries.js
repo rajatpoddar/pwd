@@ -165,7 +165,7 @@ const ENTRIES = (() => {
         const isPass = isPasswordCol(col);
         return `<td><input class="bulk-input"
           type="text" placeholder="${escAttr(col)}" data-col="${j}"
-          style="${isPass ? 'font-family:Courier New,monospace;color:#a78bfa' : ''}"></td>`;
+          style="${isPass ? 'font-family:Consolas,monospace' : ''}"></td>`;
       }).join('') +
       `<td><button class="bulk-del-btn" title="Row hatao">✕</button></td>`;
     tbody.appendChild(tr);

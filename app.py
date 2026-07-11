@@ -114,138 +114,153 @@ def api_save_data():
 def api_export_excel():
     data = get_data()
     wb = openpyxl.Workbook()
-    wb.remove(wb.active)          # remove default sheet
+    wb.remove(wb.active)
 
-    # ── colour palette ──
-    HDR_FILL   = PatternFill("solid", fgColor="1E3A5F")
-    CAT_FILL   = PatternFill("solid", fgColor="7C3AED")
-    ALT_FILL   = PatternFill("solid", fgColor="1A1A2E")
-    ALT2_FILL  = PatternFill("solid", fgColor="16213E")
-    PASS_FILL  = PatternFill("solid", fgColor="0F3460")
+    # ── Clean light/professional palette ──────────────────────────────────────
+    # Header: dark indigo bg, white text
+    HDR_FILL  = PatternFill("solid", fgColor="3730A3")   # indigo-800
+    HDR_FONT  = Font(name='Calibri', bold=True, color="FFFFFF", size=11)
 
-    HDR_FONT   = Font(name='Calibri', bold=True, color="FFFFFF", size=11)
-    CAT_FONT   = Font(name='Calibri', bold=True, color="FFFFFF", size=13)
-    CELL_FONT  = Font(name='Calibri', color="EEEEEE", size=10)
-    PASS_FONT  = Font(name='Courier New', color="A78BFA", size=10)
+    # Title row: indigo-600
+    TTL_FILL  = PatternFill("solid", fgColor="4F46E5")
+    TTL_FONT  = Font(name='Calibri', bold=True, color="FFFFFF", size=13)
 
-    thin  = Side(style='thin',  color="2D2D44")
-    med   = Side(style='medium', color="7C3AED")
-    BORDER  = Border(left=thin, right=thin, top=thin, bottom=thin)
-    MBORDER = Border(left=med,  right=med,  top=med,  bottom=med)
+    # Info row: light indigo tint
+    INFO_FILL = PatternFill("solid", fgColor="EEF2FF")
+    INFO_FONT = Font(name='Calibri', italic=True, color="4338CA", size=9)
 
-    CENTER = Alignment(horizontal='center', vertical='center', wrap_text=True)
-    LEFT   = Alignment(horizontal='left',   vertical='center', wrap_text=True)
+    # Data rows: white & very light gray alternating
+    WHITE_FILL = PatternFill("solid", fgColor="FFFFFF")
+    GRAY_FILL  = PatternFill("solid", fgColor="F9FAFB")
+
+    # Password columns: very light purple tint bg
+    PASS_BG   = PatternFill("solid", fgColor="F5F3FF")
+    PASS_FONT = Font(name='Consolas', color="4338CA", size=10, bold=False)
+
+    CELL_FONT = Font(name='Calibri', color="111827", size=10)
+    BOLD_FONT = Font(name='Calibri', color="111827", size=10, bold=True)
+
+    thin   = Side(style='thin',   color="E5E7EB")
+    medium = Side(style='medium', color="C7D2FE")
+    BORDER      = Border(left=thin,   right=thin,   top=thin,   bottom=thin)
+    HDR_BORDER  = Border(left=medium, right=medium, top=medium, bottom=medium)
+
+    CENTER = Alignment(horizontal='center', vertical='center', wrap_text=False)
+    LEFT   = Alignment(horizontal='left',   vertical='center', wrap_text=False)
 
     for cat in data.get('categories', []):
         ws = wb.create_sheet(title=cat['name'][:31])
-        ws.sheet_view.showGridLines = False
+        ws.sheet_view.showGridLines = True   # keep gridlines — cleaner for data
 
         columns = cat.get('columns', [])
         entries = cat.get('entries', [])
+        n_cols  = max(len(columns), 1)
 
-        # ── Title row ──
+        # ── Row 1: Title ────────────────────────────────────────────────────
         ws.merge_cells(start_row=1, start_column=1,
-                       end_row=1,   end_column=max(len(columns), 1))
-        title_cell = ws.cell(row=1, column=1,
-                             value=f"🔐  {cat['name'].upper()}  —  Password Manager")
-        title_cell.fill   = CAT_FILL
-        title_cell.font   = CAT_FONT
-        title_cell.alignment = CENTER
-        ws.row_dimensions[1].height = 36
+                       end_row=1,   end_column=n_cols)
+        tc = ws.cell(row=1, column=1,
+                     value=f"Password Manager  —  {cat['name'].upper()}")
+        tc.fill = TTL_FILL; tc.font = TTL_FONT; tc.alignment = CENTER
+        ws.row_dimensions[1].height = 32
 
-        # ── Sub-info row ──
+        # ── Row 2: Export info ───────────────────────────────────────────────
         ws.merge_cells(start_row=2, start_column=1,
-                       end_row=2,   end_column=max(len(columns), 1))
-        info_cell = ws.cell(row=2, column=1,
-            value=f"Exported on: {datetime.now().strftime('%d %B %Y, %I:%M %p')}  |  "
-                  f"Total Entries: {len(entries)}")
-        info_cell.fill      = PatternFill("solid", fgColor="0F3460")
-        info_cell.font      = Font(name='Calibri', italic=True, color="A78BFA", size=9)
-        info_cell.alignment = CENTER
-        ws.row_dimensions[2].height = 20
+                       end_row=2,   end_column=n_cols)
+        ic = ws.cell(row=2, column=1,
+            value=(f"Exported: {datetime.now().strftime('%d %B %Y  %I:%M %p')}"
+                   f"   |   Total Entries: {len(entries)}"))
+        ic.fill = INFO_FILL; ic.font = INFO_FONT; ic.alignment = CENTER
+        ws.row_dimensions[2].height = 18
 
-        # ── Blank separator ──
-        ws.row_dimensions[3].height = 8
-
-        # ── Header row ──
-        HDR_ROW = 4
+        # ── Row 3: Column headers ────────────────────────────────────────────
+        HDR_ROW = 3
         for j, col in enumerate(columns, start=1):
             c = ws.cell(row=HDR_ROW, column=j, value=col.upper())
-            c.fill      = HDR_FILL
-            c.font      = HDR_FONT
+            c.fill   = HDR_FILL
+            c.font   = HDR_FONT
             c.alignment = CENTER
-            c.border    = BORDER
-        ws.row_dimensions[HDR_ROW].height = 28
+            c.border = HDR_BORDER
+        ws.row_dimensions[HDR_ROW].height = 26
 
-        # ── Data rows ──
+        # ── Data rows ────────────────────────────────────────────────────────
         for i, entry in enumerate(entries):
             row_num = HDR_ROW + 1 + i
-            fill = ALT_FILL if i % 2 == 0 else ALT2_FILL
-            for j, val in enumerate(entry):
-                col_name = columns[j] if j < len(columns) else ''
-                is_pass  = any(k in col_name.lower() for k in ('pass', 'password', 'pwd'))
-                c = ws.cell(row=row_num, column=j+1, value=val)
-                c.fill      = PASS_FILL if is_pass else fill
+            row_fill = WHITE_FILL if i % 2 == 0 else GRAY_FILL
+            for j in range(len(columns)):
+                val      = entry[j] if j < len(entry) else ''
+                col_name = columns[j]
+                is_pass  = any(k in col_name.lower()
+                               for k in ('pass', 'password', 'pwd', 'secret'))
+                c = ws.cell(row=row_num, column=j + 1, value=val)
+                c.fill      = PASS_BG   if is_pass else row_fill
                 c.font      = PASS_FONT if is_pass else CELL_FONT
-                c.alignment = CENTER if is_pass else LEFT
+                c.alignment = CENTER    if is_pass else LEFT
                 c.border    = BORDER
-            ws.row_dimensions[row_num].height = 22
+            ws.row_dimensions[row_num].height = 20
 
-        # ── Column widths ──
+        # ── Column widths (auto-fit, no collation) ───────────────────────────
         for j, col in enumerate(columns, start=1):
-            max_len = max(
-                [len(str(col))] +
-                [len(str(e[j-1])) if j-1 < len(e) else 0 for e in entries]
-            )
-            ws.column_dimensions[get_column_letter(j)].width = min(max(max_len + 4, 12), 40)
+            col_vals = [str(col)] + [
+                str(e[j - 1]) if j - 1 < len(e) else '' for e in entries
+            ]
+            best = max(len(v) for v in col_vals)
+            ws.column_dimensions[get_column_letter(j)].width = min(max(best + 3, 12), 45)
 
-        # ── Freeze panes below header ──
+        # ── Freeze header rows ───────────────────────────────────────────────
         ws.freeze_panes = ws.cell(row=HDR_ROW + 1, column=1)
 
-        # ── Auto-filter ──
+        # ── Auto-filter on header row ────────────────────────────────────────
         if columns:
             ws.auto_filter.ref = (
-                f"A{HDR_ROW}:{get_column_letter(len(columns))}{HDR_ROW + len(entries)}"
+                f"A{HDR_ROW}:"
+                f"{get_column_letter(len(columns))}{HDR_ROW + len(entries)}"
             )
 
-    # ── Summary sheet ──
+    # ── Summary sheet (index 0) ───────────────────────────────────────────────
     ws_sum = wb.create_sheet(title="Summary", index=0)
-    ws_sum.sheet_view.showGridLines = False
-    ws_sum.column_dimensions['A'].width = 30
-    ws_sum.column_dimensions['B'].width = 18
-    ws_sum.column_dimensions['C'].width = 30
+    ws_sum.sheet_view.showGridLines = True
 
+    ws_sum.column_dimensions['A'].width = 28
+    ws_sum.column_dimensions['B'].width = 16
+    ws_sum.column_dimensions['C'].width = 45
+
+    # Title
     ws_sum.merge_cells('A1:C1')
-    t = ws_sum.cell(row=1, column=1, value="🔐  PASSWORD MANAGER — EXPORT SUMMARY")
-    t.fill = CAT_FILL; t.font = CAT_FONT; t.alignment = CENTER
-    ws_sum.row_dimensions[1].height = 36
+    t = ws_sum.cell(row=1, column=1, value="Password Manager — Export Summary")
+    t.fill = TTL_FILL; t.font = TTL_FONT; t.alignment = CENTER
+    ws_sum.row_dimensions[1].height = 32
 
+    # Info
     ws_sum.merge_cells('A2:C2')
     d = ws_sum.cell(row=2, column=1,
-        value=f"Generated: {datetime.now().strftime('%d %B %Y, %I:%M %p')}")
-    d.fill = PatternFill("solid", fgColor="0F3460")
-    d.font = Font(name='Calibri', italic=True, color="A78BFA", size=9)
-    d.alignment = CENTER
-    ws_sum.row_dimensions[2].height = 20
+        value=f"Generated: {datetime.now().strftime('%d %B %Y  %I:%M %p')}")
+    d.fill = INFO_FILL; d.font = INFO_FONT; d.alignment = CENTER
+    ws_sum.row_dimensions[2].height = 18
 
+    # Header
     for hdr, col in [("Category", 1), ("Total Entries", 2), ("Columns", 3)]:
-        c = ws_sum.cell(row=4, column=col, value=hdr.upper())
-        c.fill = HDR_FILL; c.font = HDR_FONT; c.alignment = CENTER; c.border = BORDER
-    ws_sum.row_dimensions[4].height = 28
+        c = ws_sum.cell(row=3, column=col, value=hdr.upper())
+        c.fill = HDR_FILL; c.font = HDR_FONT
+        c.alignment = CENTER; c.border = HDR_BORDER
+    ws_sum.row_dimensions[3].height = 26
 
-    for i, cat in enumerate(data.get('categories', []), start=5):
-        ws_sum.cell(row=i, column=1, value=cat['name']).border = BORDER
-        ws_sum.cell(row=i, column=1).font = CELL_FONT
-        ws_sum.cell(row=i, column=1).fill = ALT_FILL if i%2==0 else ALT2_FILL
-        ws_sum.cell(row=i, column=1).alignment = LEFT
+    # Data
+    for i, cat in enumerate(data.get('categories', []), start=4):
+        fill = WHITE_FILL if i % 2 == 0 else GRAY_FILL
 
-        cnt = ws_sum.cell(row=i, column=2, value=len(cat.get('entries', [])))
-        cnt.border = BORDER; cnt.font = CELL_FONT; cnt.alignment = CENTER
-        cnt.fill = ALT_FILL if i%2==0 else ALT2_FILL
+        c1 = ws_sum.cell(row=i, column=1, value=cat['name'])
+        c1.font = BOLD_FONT; c1.fill = fill
+        c1.alignment = LEFT; c1.border = BORDER
 
-        cols_val = ws_sum.cell(row=i, column=3, value=", ".join(cat.get('columns', [])))
-        cols_val.border = BORDER; cols_val.font = CELL_FONT; cols_val.alignment = LEFT
-        cols_val.fill = ALT_FILL if i%2==0 else ALT2_FILL
+        c2 = ws_sum.cell(row=i, column=2, value=len(cat.get('entries', [])))
+        c2.font = CELL_FONT; c2.fill = fill
+        c2.alignment = CENTER; c2.border = BORDER
+
+        c3 = ws_sum.cell(row=i, column=3,
+                         value=", ".join(cat.get('columns', [])))
+        c3.font = CELL_FONT; c3.fill = fill
+        c3.alignment = LEFT; c3.border = BORDER
         ws_sum.row_dimensions[i].height = 20
 
     buf = io.BytesIO()
