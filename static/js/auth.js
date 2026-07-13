@@ -5,11 +5,19 @@
 const AUTH = (() => {
 
   // ── Screen switchers ────────────────────────────────────────────────────────
+  function _hideApp() {
+    const appEl = document.getElementById('app');
+    appEl.style.display = 'none';
+    appEl.classList.remove('visible');
+    // Dark theme for auth/pin screens
+    if (typeof setThemeColor === 'function') setThemeColor('#0f172a');
+  }
+
   function showLogin() {
     document.getElementById('screen-login').style.display    = 'flex';
     document.getElementById('screen-register').style.display = 'none';
     document.getElementById('screen-pin').style.display      = 'none';
-    document.getElementById('app').style.display             = 'none';
+    _hideApp();
     document.getElementById('login-error').textContent = '';
     document.getElementById('login-identifier').value  = '';
   }
@@ -18,7 +26,7 @@ const AUTH = (() => {
     document.getElementById('screen-login').style.display    = 'none';
     document.getElementById('screen-register').style.display = 'flex';
     document.getElementById('screen-pin').style.display      = 'none';
-    document.getElementById('app').style.display             = 'none';
+    _hideApp();
     document.getElementById('reg-error').textContent = '';
   }
 
@@ -26,7 +34,7 @@ const AUTH = (() => {
     document.getElementById('screen-login').style.display    = 'none';
     document.getElementById('screen-register').style.display = 'none';
     document.getElementById('screen-pin').style.display      = 'flex';
-    document.getElementById('app').style.display             = 'none';
+    _hideApp();
     document.getElementById('pin-welcome-name').textContent  = `Namaste, ${name}! 👋`;
     // reset pin buffer
     PIN.reset();

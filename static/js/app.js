@@ -12,15 +12,38 @@ function escHtml(s) {
 function escAttr(s) {
   return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
+
 function showToast(msg, type = 'green') {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.style.background = type === 'red' ? '#ef4444'
-                      : type === 'orange' ? '#f97316'
-                      : '#22c55e';
-  t.classList.add('show');
+  t.className = '';
+  if (type === 'red')    t.classList.add('show','toast-error');
+  else if (type === 'orange') t.classList.add('show','toast-info');
+  else                   t.classList.add('show','toast-success');
   clearTimeout(t._tid);
   t._tid = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── Theme color switcher ──────────────────────────────────────────────────────
+function setThemeColor(color) {
+  const meta = document.getElementById('meta-theme-color');
+  if (meta) meta.setAttribute('content', color);
+}
+
+// ── Custom Confirm Dialog (replaces browser confirm()) ────────────────────────
+function showConfirm(opts) {
+  // opts: { icon, title, msg, okLabel, okClass, onOk }
+  const overlay = document.getElementById('confirm-dialog');
+  document.getElementById('confirm-icon').textContent  = opts.icon  || '⚠️';
+  document.getElementById('confirm-title').textContent = opts.title || 'Confirm karein';
+  document.getElementById('confirm-msg').textContent   = opts.msg   || 'Kya aap sure hain?';
+  const okBtn = document.getElementById('confirm-ok-btn');
+  okBtn.textContent = opts.okLabel || 'Confirm';
+  okBtn.className = 'btn ' + (opts.okClass || 'btn-danger');
+  overlay.classList.add('open');
+  const closeConfirm = () => overlay.classList.remove('open');
+  document.getElementById('confirm-cancel-btn').onclick = closeConfirm;
+  okBtn.onclick = () => { closeConfirm(); if (opts.onOk) opts.onOk(); };
 }
 
 // ── Modal helper ──────────────────────────────────────────────────────────────
@@ -43,13 +66,12 @@ const APP = (() => {
   let _data        = null;
   let _userId      = null;
   let _userRole    = null;
-  let _lockTimeout = 15; // minutes
+  let _lockTimeout = 15;
   let _lockTimer   = null;
   let _lastActivity = Date.now();
 
   // ── Show App (called after PIN verified) ────────────────────────────────────
   async function showApp(userData) {
-    // If user_id not present (e.g. from checkSession path), fetch status
     if (!userData.user_id) {
       const status = await fetch('/api/auth/status').then(r => r.json());
       userData = { ...userData, ...status };
@@ -61,11 +83,19 @@ const APP = (() => {
     document.getElementById('screen-login').style.display    = 'none';
     document.getElementById('screen-register').style.display = 'none';
     document.getElementById('screen-pin').style.display      = 'none';
-    document.getElementById('app').style.display             = 'block';
+
+    const appEl = document.getElementById('app');
+    appEl.style.display = 'block';
+    appEl.classList.add('visible');
+    setThemeColor('#ffffff'); // light theme when app is open
 
     // Show admin badge only for admin
     const adminBadge = document.getElementById('admin-badge');
     adminBadge.style.display = _userRole === 'admin' ? 'inline-flex' : 'none';
+
+    // Show desktop sidebar on wide screens
+    const sidebar = document.getElementById('desktop-sidebar');
+    sidebar.style.display = window.innerWidth >= 769 ? 'flex' : 'none';
 
     await loadData();
     const data = getData();
@@ -74,21 +104,16 @@ const APP = (() => {
     }
     CATEGORIES.renderTabs();
     ENTRIES.renderTable();
-
-    // Start auto-lock timer
     startAutoLock(_lockTimeout);
   }
 
-  // ── Data ────────────────────────────────────────────────────────────────────
   let currentCategory = null;
 
   async function loadData() {
     try {
       const res = await fetch('/api/data');
       if (res.status === 401 || res.status === 403) {
-        // Session expired
-        AUTH.doLogout();
-        return;
+        AUTH.doLogout(); return;
       }
       _data = await res.json();
       if (!_data.categories) _data = { categories: [] };
@@ -122,10 +147,7 @@ const APP = (() => {
   // ── Lock ────────────────────────────────────────────────────────────────────
   async function lock() {
     clearAutoLock();
-    try {
-      await fetch('/api/auth/lock', { method: 'POST' });
-    } catch (_) {}
-    // Show PIN screen again
+    try { await fetch('/api/auth/lock', { method: 'POST' }); } catch (_) {}
     const status = await fetch('/api/auth/status').then(r => r.json()).catch(() => null);
     if (status && status.logged_in) {
       AUTH.showPinScreen(status.name);
@@ -143,8 +165,6 @@ const APP = (() => {
       showToast('⏱ Auto-lock ho gaya!', 'orange');
       setTimeout(lock, 1000);
     }, ms);
-
-    // Reset timer on user activity
     _lastActivity = Date.now();
   }
 
@@ -165,31 +185,84 @@ const APP = (() => {
 
   // ── Init ────────────────────────────────────────────────────────────────────
   function init() {
-    // Lock button
+    // Lock buttons
     document.getElementById('btn-lock').addEventListener('click', lock);
 
-    // Activity tracking (reset timer on any interaction)
-    ['click', 'keydown', 'mousemove', 'touchstart'].forEach(evt => {
+    // Logout from profile
+    const logoutBtn = document.getElementById('btn-logout-profile');
+    if (logoutBtn) logoutBtn.addEventListener('click', () => AUTH.doLogout());
+
+    // Bottom nav + desktop sidebar clicks
+    document.querySelectorAll('[data-nav]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const nav = btn.dataset.nav;
+        if (nav === 'export') { EXPORT.toExcel(); return; }
+        if (nav === 'profile') {
+          // Mark sidebar active
+          document.querySelectorAll('.desktop-sidebar-item').forEach(b => b.classList.remove('active'));
+          const sideProfile = document.querySelector('.desktop-sidebar-item[data-nav="profile"]');
+          if (sideProfile) sideProfile.classList.add('active');
+          PROFILE.open();
+          return;
+        }
+        // passwords tab — close profile page if open, restore view
+        if (typeof PROFILE !== 'undefined') PROFILE.close();
+        document.querySelectorAll('[data-nav]').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.nav-item[data-nav]').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.desktop-sidebar-item[data-nav]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+
+    // FAB button (mobile quick-add)
+    const fab = document.getElementById('fab-add-entry');
+    if (fab) fab.addEventListener('click', () => ENTRIES.openAdd());
+
+    // Export nav button
+    const navExport = document.getElementById('nav-export-btn');
+    if (navExport) navExport.addEventListener('click', () => EXPORT.toExcel());
+
+    // Sidebar export
+    const sideExport = document.getElementById('sidebar-export');
+    if (sideExport) sideExport.addEventListener('click', () => EXPORT.toExcel());
+
+    // Admin badge
+    document.getElementById('admin-badge').addEventListener('click', () => ADMIN.open());
+
+    // Activity tracking
+    ['click', 'keydown', 'touchstart'].forEach(evt => {
       document.addEventListener(evt, () => {
         if (_lockTimer) resetActivityTimer();
       }, { passive: true });
     });
 
-    // Lock when browser/tab is closed (beforeunload = tab/window close)
     window.addEventListener('beforeunload', () => {
       navigator.sendBeacon('/api/auth/lock');
+    });
+
+    // Resize: show/hide desktop sidebar
+    window.addEventListener('resize', () => {
+      const sidebar = document.getElementById('desktop-sidebar');
+      if (sidebar && document.getElementById('app').style.display !== 'none') {
+        sidebar.style.display = window.innerWidth >= 769 ? 'flex' : 'none';
+      }
     });
 
     // Init all sub-modules
     AUTH.init();
     PIN.init();
     PROFILE.init();
-    ADMIN.init();
     CATEGORIES.init();
     ENTRIES.init();
     EXPORT.init();
+    if (typeof ADMIN !== 'undefined') ADMIN.init();
 
-    // Check existing session
+    // Search input (live filter)
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+      searchInput.addEventListener('input', () => ENTRIES.renderTable(searchInput.value));
+    }
+
     AUTH.checkSession();
   }
 

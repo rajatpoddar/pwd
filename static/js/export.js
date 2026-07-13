@@ -17,5 +17,5 @@ const EXPORT = (() => {
     document.getElementById('btn-export').addEventListener('click', toExcel);
   }
 
-  return { init };
+  return { init, toExcel };
 })();

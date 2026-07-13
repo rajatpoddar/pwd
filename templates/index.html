@@ -1,8 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a" id="meta-theme-color">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Password Manager</title>
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
@@ -11,12 +15,16 @@
 <!-- ═══════════════════════ SCREEN: LOGIN ════════════════════════════ -->
 <div id="screen-login" class="auth-screen">
   <div class="auth-card">
-    <div class="auth-logo">🔐</div>
-    <h2>Password Manager</h2>
-    <p class="auth-sub">Apne account mein login karein</p>
+    <div class="auth-brand">
+      <div class="auth-brand-icon">🔐</div>
+      <span class="auth-brand-text">Password Manager</span>
+    </div>
+    <h2 class="auth-title">Welcome Back</h2>
+    <p class="auth-sub">Apna email ya mobile number dalein</p>
     <div class="form-group">
-      <label>Email ya Mobile Number</label>
-      <input type="text" id="login-identifier" placeholder="email@example.com ya 9876543210"
+      <label for="login-identifier">Email ya Mobile Number</label>
+      <input type="text" id="login-identifier"
+             placeholder="email@example.com ya 9876543210"
              inputmode="email" autocomplete="username">
     </div>
     <div id="login-error" class="form-error"></div>
@@ -29,33 +37,36 @@
 <!-- ═══════════════════════ SCREEN: REGISTER ═════════════════════════ -->
 <div id="screen-register" class="auth-screen" style="display:none">
   <div class="auth-card">
-    <div class="auth-logo">📝</div>
-    <h2>Naya Account</h2>
+    <div class="auth-brand">
+      <div class="auth-brand-icon">📝</div>
+      <span class="auth-brand-text">Naya Account</span>
+    </div>
+    <h2 class="auth-title">Register Karein</h2>
     <p class="auth-sub">Apni details bharein</p>
     <div class="form-group">
-      <label>Pura Naam *</label>
+      <label for="reg-name">Pura Naam *</label>
       <input type="text" id="reg-name" placeholder="Apna naam likhein" autocomplete="name">
     </div>
     <div class="form-group">
-      <label>Block Naam *</label>
+      <label for="reg-block">Block Naam *</label>
       <input type="text" id="reg-block" placeholder="e.g. Peterbar, Khijri" autocomplete="off">
     </div>
     <div class="form-group">
-      <label>Email Address *</label>
+      <label for="reg-email">Email Address *</label>
       <input type="email" id="reg-email" placeholder="email@example.com" autocomplete="email">
     </div>
     <div class="form-group">
-      <label>Mobile Number *</label>
+      <label for="reg-mobile">Mobile Number *</label>
       <input type="tel" id="reg-mobile" placeholder="10-digit mobile number"
              maxlength="10" inputmode="numeric" autocomplete="tel">
     </div>
     <div class="form-group">
-      <label>4-Digit PIN *</label>
+      <label for="reg-pin">4-Digit PIN *</label>
       <input type="password" id="reg-pin" placeholder="••••" maxlength="4"
              inputmode="numeric" autocomplete="new-password">
     </div>
     <div class="form-group">
-      <label>PIN Confirm Karein *</label>
+      <label for="reg-pin-confirm">PIN Confirm Karein *</label>
       <input type="password" id="reg-pin-confirm" placeholder="••••" maxlength="4"
              inputmode="numeric" autocomplete="new-password">
     </div>
@@ -69,7 +80,7 @@
 <!-- ═══════════════════════ SCREEN: PIN ══════════════════════════════ -->
 <div id="screen-pin" class="auth-screen" style="display:none">
   <div class="pin-card" id="pin-screen-inner">
-    <div class="auth-logo">🔒</div>
+    <div class="pin-lock-icon">🔒</div>
     <h2 id="pin-welcome-name">Welcome!</h2>
     <p class="auth-sub">Dashboard unlock karne ke liye PIN dalein</p>
     <div id="pin-dots">
@@ -93,56 +104,267 @@
       <button class="key del" data-key="back">⌫</button>
     </div>
     <div id="pin-error" class="pin-error-msg"></div>
-    <button class="btn btn-ghost btn-sm pin-logout-btn" id="btn-pin-logout">← Logout</button>
+    <button class="btn btn-ghost btn-sm pin-logout-btn" id="btn-pin-logout">← Dobara Login Karein</button>
   </div>
 </div>
 
 <!-- ════════════════════════ MAIN APP ════════════════════════════════ -->
-<div id="app" style="display:none">
-  <!-- Topbar -->
-  <div class="topbar">
-    <h1>🔐 Password Manager</h1>
+<div id="app">
+
+  <!-- Top App Bar -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-icon">🔐</div>
+      <h1>Password Manager</h1>
+    </div>
     <div class="topbar-actions">
-      <button class="btn btn-success" id="btn-export">⬇ Excel</button>
-      <button class="btn btn-primary" id="btn-bulk-add">+ Bulk</button>
-      <button class="btn btn-ghost" id="btn-single-add">+ Entry</button>
-      <button class="btn btn-ghost" id="btn-open-profile">👤 Profile</button>
-      <span id="admin-badge" class="admin-badge" style="display:none">⚙ Admin</span>
-      <button class="btn btn-danger" id="btn-lock">🔒 Lock</button>
+      <button class="btn btn-success btn-sm" id="btn-export" title="Excel Export">
+        <span>⬇</span><span class="topbar-lbl"> Excel</span>
+      </button>
+      <button class="btn btn-ghost btn-sm btn-icon" id="btn-open-profile" title="Profile" aria-label="Profile">👤</button>
+      <button id="admin-badge" class="admin-badge" style="display:none" title="Admin Panel">
+        ⚙ <span class="topbar-lbl">Admin</span>
+      </button>
+      <button class="btn btn-ghost btn-sm btn-icon" id="btn-lock" title="Lock App" aria-label="Lock">🔒</button>
+    </div>
+  </header>
+
+  <!-- App Body -->
+  <div class="app-layout">
+    <!-- Desktop sidebar (hidden on mobile via CSS) -->
+    <nav class="desktop-sidebar" id="desktop-sidebar" style="display:none">
+      <button class="desktop-sidebar-item active" data-nav="passwords">
+        <span class="nav-icon">🔑</span> Passwords
+      </button>
+      <button class="desktop-sidebar-item" data-nav="export" id="sidebar-export">
+        <span class="nav-icon">⬇</span> Export Excel
+      </button>
+      <button class="desktop-sidebar-item" data-nav="profile" id="sidebar-profile">
+        <span class="nav-icon">👤</span> Profile
+      </button>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="app-main">
+      <div class="page-content">
+        <!-- Category chips -->
+        <div class="category-bar" id="tabs-bar">
+          <button class="btn-add-cat" id="add-category-btn">＋ Category</button>
+        </div>
+
+        <!-- Section header -->
+        <div class="section-header">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="section-title" id="current-cat-title">Passwords</span>
+            <span class="section-count" id="entry-count">0</span>
+          </div>
+          <div class="section-actions">
+            <button class="btn btn-ghost btn-sm" id="btn-edit-cat" title="Rename category">✏️ <span class="topbar-lbl">Rename</span></button>
+            <button class="btn btn-ghost btn-sm" id="btn-del-cat" title="Delete category">🗑</button>
+            <button class="btn btn-ghost btn-sm" id="btn-bulk-add">+ <span class="topbar-lbl">Bulk</span></button>
+            <button class="btn btn-primary btn-sm" id="btn-single-add">+ Entry</button>
+          </div>
+        </div>
+
+        <!-- Search -->
+        <div class="search-bar">
+          <span class="search-icon">🔍</span>
+          <input type="search" id="search-input" placeholder="Search entries..." autocomplete="off" inputmode="search">
+        </div>
+
+        <!-- Entry cards area -->
+        <div id="table-area"></div>
+
+        <!-- Copy banner — shows copied value below table -->
+        <div id="copy-banner">
+          <div class="cb-label">✓ Copied to Clipboard</div>
+          <div class="cb-value" id="copy-banner-value"></div>
+        </div>
+
+        <!-- Profile inline page -->
+        <div id="profile-page">
+          <button class="profile-page-back" id="profile-page-back">← Passwords pe Wapis Jaein</button>
+          <div class="profile-page-hero">
+            <div class="profile-page-avatar" id="pp-avatar">R</div>
+            <div class="profile-page-hero-info">
+              <h3 id="pp-name">—</h3>
+              <span class="profile-role-badge role-user" id="pp-role-badge">User</span>
+            </div>
+          </div>
+
+          <!-- Account Info -->
+          <div class="profile-page-card">
+            <div class="profile-page-section-title">Account Info</div>
+            <div class="profile-info-row">
+              <span class="pir-label">📧 Email</span>
+              <span class="pir-value" id="pp-email">—</span>
+            </div>
+            <div class="profile-info-row">
+              <span class="pir-label">📱 Mobile</span>
+              <span class="pir-value" id="pp-mobile">—</span>
+            </div>
+            <div class="profile-info-row">
+              <span class="pir-label">🏘 Block</span>
+              <span class="pir-value" id="pp-block">—</span>
+            </div>
+          </div>
+
+          <!-- Auto-lock -->
+          <div class="profile-page-card">
+            <div class="profile-page-section-title">Auto-Lock Timeout</div>
+            <p class="setting-desc">Browser band hone par ya is samay baad lock ho jayega.</p>
+            <div class="timeout-options" id="pp-timeout-options">
+              <button class="timeout-btn" data-timeout="15">15 Min</button>
+              <button class="timeout-btn" data-timeout="60">1 Hour</button>
+              <button class="timeout-btn" data-timeout="1440">24 Hours</button>
+            </div>
+          </div>
+
+          <!-- Change PIN -->
+          <div class="profile-page-card">
+            <div class="profile-page-section-title">PIN Change Karein</div>
+            <div class="form-group" style="padding:14px 18px 0">
+              <label for="pp-old-pin">Purana PIN</label>
+              <input type="password" id="pp-old-pin" maxlength="4" placeholder="••••" inputmode="numeric" autocomplete="off">
+            </div>
+            <div class="form-group" style="padding:0 18px">
+              <label for="pp-new-pin">Naya PIN</label>
+              <input type="password" id="pp-new-pin" maxlength="4" placeholder="••••" inputmode="numeric" autocomplete="off">
+            </div>
+            <div class="form-group" style="padding:0 18px">
+              <label for="pp-confirm-pin">Confirm Naya PIN</label>
+              <input type="password" id="pp-confirm-pin" maxlength="4" placeholder="••••" inputmode="numeric" autocomplete="off">
+            </div>
+            <div style="padding:0 18px 18px">
+              <button class="btn btn-primary" id="pp-save-pin">PIN Update Karein</button>
+            </div>
+          </div>
+
+          <!-- Logout -->
+          <div class="profile-page-card" style="margin-bottom:24px">
+            <div style="padding:16px 18px">
+              <button class="btn btn-ghost" id="pp-logout-btn" style="width:100%;justify-content:center;">🚪 Logout</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Bottom Navigation Bar (mobile) -->
+  <nav class="bottom-nav" role="navigation" aria-label="Main navigation">
+    <button class="nav-item active" data-nav="passwords" aria-label="Passwords">
+      <span class="nav-icon">🔑</span>
+      <span class="nav-label">Passwords</span>
+    </button>
+    <div class="nav-fab">
+      <button class="fab-btn" id="fab-add-entry" aria-label="Add entry">＋</button>
+    </div>
+    <button class="nav-item" data-nav="export" id="nav-export-btn" aria-label="Export">
+      <span class="nav-icon">⬇</span>
+      <span class="nav-label">Export</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ════════════════════════ TOAST ═══════════════════════════════════ -->
+<div id="toast" role="status" aria-live="polite"></div>
+
+<!-- ════════════════════════ CONFIRM DIALOG ══════════════════════════ -->
+<div class="confirm-overlay" id="confirm-dialog">
+  <div class="confirm-box">
+    <div class="confirm-icon" id="confirm-icon">⚠️</div>
+    <div class="confirm-title" id="confirm-title">Confirm karein</div>
+    <div class="confirm-msg" id="confirm-msg">Kya aap sure hain?</div>
+    <div class="confirm-actions">
+      <button class="btn btn-ghost" id="confirm-cancel-btn">Cancel</button>
+      <button class="btn btn-danger" id="confirm-ok-btn">Confirm</button>
     </div>
   </div>
+</div>
 
-  <!-- Tabs -->
-  <div id="tabs-bar">
-    <button id="add-category-btn">+ Category</button>
+<!-- ════════════════════════ ENTRY MODAL ═════════════════════════════ -->
+<div class="modal-overlay" id="entry-modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="entry-modal-title">
+    <div class="modal-header">
+      <h3 id="entry-modal-title">Entry Add Karein</h3>
+      <button class="modal-close-btn" data-close="entry-modal" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="entry-form-fields"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" data-close="entry-modal">Cancel</button>
+      <button class="btn btn-primary" id="btn-save-entry">Save Entry</button>
+    </div>
   </div>
+</div>
 
-  <!-- Table -->
-  <div class="table-wrapper">
-    <div class="table-header">
-      <h3 id="current-cat-title">Category</h3>
-      <div>
-        <button class="btn btn-ghost btn-sm" id="btn-edit-cat">✏️ Rename</button>
-        <button class="btn btn-danger btn-sm" id="btn-del-cat">🗑 Delete</button>
+<!-- ════════════════════════ CATEGORY MODAL ══════════════════════════ -->
+<div class="modal-overlay" id="cat-modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cat-modal-title">
+    <div class="modal-header">
+      <h3 id="cat-modal-title">Naya Category</h3>
+      <button class="modal-close-btn" data-close="cat-modal" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="cat-name-input">Category Name</label>
+        <input type="text" id="cat-name-input" placeholder="e.g. NREGA, Bank, Email">
+      </div>
+      <div class="form-group">
+        <label>Columns Define Karein</label>
+        <div id="col-fields"></div>
+        <button id="add-col-btn">＋ Column Add Karein</button>
       </div>
     </div>
-    <div id="table-area"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" data-close="cat-modal">Cancel</button>
+      <button class="btn btn-primary" id="btn-save-category">Category Banayein</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ BULK ENTRY MODAL ════════════════════════ -->
+<div class="modal-overlay" id="bulk-entry-modal">
+  <div class="modal modal-wide" role="dialog" aria-modal="true" aria-labelledby="bulk-modal-title">
+    <div class="modal-header">
+      <h3 id="bulk-modal-title">Bulk Entry Add</h3>
+      <button class="modal-close-btn" data-close="bulk-entry-modal" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="bulk-table-wrap">
+        <table class="bulk-table">
+          <thead id="bulk-thead"></thead>
+          <tbody id="bulk-tbody"></tbody>
+        </table>
+      </div>
+      <div class="bulk-footer">
+        <button id="add-bulk-row-btn">＋ Row Add Karein</button>
+        <span id="bulk-count-info"></span>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" data-close="bulk-entry-modal">Cancel</button>
+      <button class="btn btn-primary" id="btn-save-bulk">Save All Entries</button>
+    </div>
   </div>
 </div>
 
 <!-- ════════════════════════ PROFILE PANEL ═══════════════════════════ -->
 <div class="modal-overlay" id="profile-modal">
-  <div class="modal modal-profile">
-    <div class="profile-header">
+  <div class="modal modal-profile" role="dialog" aria-modal="true" aria-label="Profile">
+    <div class="profile-hero">
       <div class="profile-avatar" id="profile-avatar-initials">R</div>
-      <div>
+      <div class="profile-hero-info">
         <h3 id="profile-name-display">—</h3>
-        <span class="profile-role-badge" id="profile-role-badge">User</span>
+        <span class="profile-role-badge role-user" id="profile-role-badge">User</span>
       </div>
-      <button class="modal-close-btn" data-close="profile-modal">✕</button>
+      <button class="modal-close-btn" data-close="profile-modal" aria-label="Close">✕</button>
     </div>
 
     <div class="profile-section">
+      <div class="profile-section-title">Account Info</div>
       <div class="profile-info-row">
         <span class="pir-label">📧 Email</span>
         <span class="pir-value" id="profile-email-display">—</span>
@@ -158,106 +380,57 @@
     </div>
 
     <div class="profile-section">
-      <h4 class="section-title">⚙️ Settings</h4>
-      <div class="form-group">
-        <label>Auto-Lock Timeout</label>
-        <p class="setting-desc">Browser tab band karne par ya is samay baad dashboard automatically lock ho jayega.</p>
-        <div class="timeout-options" id="timeout-options">
-          <button class="timeout-btn" data-timeout="15">15 Min</button>
-          <button class="timeout-btn" data-timeout="60">1 Hour</button>
-          <button class="timeout-btn" data-timeout="1440">24 Hours</button>
-        </div>
+      <div class="profile-section-title">Auto-Lock Timeout</div>
+      <p class="setting-desc">Browser tab band hone par ya is samay baad dashboard lock ho jayega.</p>
+      <div class="timeout-options" id="timeout-options">
+        <button class="timeout-btn" data-timeout="15">15 Min</button>
+        <button class="timeout-btn" data-timeout="60">1 Hour</button>
+        <button class="timeout-btn" data-timeout="1440">24 Hours</button>
       </div>
     </div>
 
     <div class="profile-section">
-      <h4 class="section-title">🔑 PIN Change Karein</h4>
+      <div class="profile-section-title">PIN Change Karein</div>
       <div class="form-group">
-        <label>Purana PIN</label>
+        <label for="old-pin-input">Purana PIN</label>
         <input type="password" id="old-pin-input" maxlength="4"
                placeholder="••••" inputmode="numeric" autocomplete="off">
       </div>
       <div class="form-group">
-        <label>Naya PIN (4 digit)</label>
+        <label for="new-pin-input">Naya PIN</label>
         <input type="password" id="new-pin-input" maxlength="4"
                placeholder="••••" inputmode="numeric" autocomplete="off">
       </div>
       <div class="form-group">
-        <label>Confirm Naya PIN</label>
+        <label for="confirm-pin-input">Confirm Naya PIN</label>
         <input type="password" id="confirm-pin-input" maxlength="4"
                placeholder="••••" inputmode="numeric" autocomplete="off">
       </div>
-      <button class="btn btn-primary" id="btn-save-pin">PIN Save Karein</button>
+      <button class="btn btn-primary" id="btn-save-pin">PIN Update Karein</button>
+    </div>
+
+    <div class="profile-section" style="padding-bottom:24px">
+      <button class="btn btn-ghost" id="btn-logout-profile" style="width:100%;justify-content:center;">
+        🚪 Logout
+      </button>
     </div>
   </div>
 </div>
 
 <!-- ════════════════════════ ADMIN PANEL ═════════════════════════════ -->
 <div class="modal-overlay" id="admin-modal">
-  <div class="modal modal-admin">
-    <div class="admin-header">
-      <h3>⚙️ Admin Controls</h3>
-      <button class="modal-close-btn" data-close="admin-modal">✕</button>
+  <div class="modal modal-wide modal-admin" role="dialog" aria-modal="true" aria-label="Admin Panel">
+    <div class="modal-header">
+      <h3>⚙️ Admin Panel</h3>
+      <button class="modal-close-btn" data-close="admin-modal" aria-label="Close">✕</button>
     </div>
-    <p class="admin-sub">Registered users ki list aur PIN reset.</p>
-    <div id="admin-users-list">
-      <div class="loading-state">Loading...</div>
-    </div>
-  </div>
-</div>
-
-<!-- ════════════════════════ TOAST ═══════════════════════════════════ -->
-<div id="toast"></div>
-
-<!-- ════════════════════════ ENTRY MODAL ═════════════════════════════ -->
-<div class="modal-overlay" id="entry-modal">
-  <div class="modal">
-    <h3 id="entry-modal-title">Entry Add Karein</h3>
-    <div id="entry-form-fields"></div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" data-close="entry-modal">Cancel</button>
-      <button class="btn btn-primary" id="btn-save-entry">Save</button>
-    </div>
-  </div>
-</div>
-
-<!-- ════════════════════════ CATEGORY MODAL ══════════════════════════ -->
-<div class="modal-overlay" id="cat-modal">
-  <div class="modal">
-    <h3 id="cat-modal-title">Naya Category Banayein</h3>
-    <div class="form-group">
-      <label>Category Name</label>
-      <input type="text" id="cat-name-input" placeholder="e.g. NREGA, Bank, Email">
-    </div>
-    <div class="form-group">
-      <label>Columns define karein</label>
-      <div id="col-fields"></div>
-      <button id="add-col-btn">+ Column Add Karein</button>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" data-close="cat-modal">Cancel</button>
-      <button class="btn btn-primary" id="btn-save-category">Category Banayein</button>
-    </div>
-  </div>
-</div>
-
-<!-- ════════════════════════ BULK ENTRY MODAL ════════════════════════ -->
-<div class="modal-overlay" id="bulk-entry-modal">
-  <div class="modal modal-wide">
-    <h3 id="bulk-modal-title">📋 Bulk Entry Add Karein</h3>
-    <div class="bulk-table-wrap">
-      <table class="bulk-table">
-        <thead id="bulk-thead"></thead>
-        <tbody id="bulk-tbody"></tbody>
-      </table>
-    </div>
-    <div class="bulk-footer">
-      <button id="add-bulk-row-btn">+ Row Add Karein</button>
-      <span id="bulk-count-info"></span>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" data-close="bulk-entry-modal">Cancel</button>
-      <button class="btn btn-primary" id="btn-save-bulk">Save All Entries</button>
+    <div class="modal-body">
+      <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:16px">
+        Registered users ki list — PIN reset aur account delete karein.
+      </p>
+      <div id="admin-users-list">
+        <div class="loading-state">Loading...</div>
+      </div>
     </div>
   </div>
 </div>

@@ -1,5 +1,6 @@
 /**
  * admin.js — Admin panel (user list + PIN reset + delete)
+ * Uses custom confirm dialog instead of browser prompt/confirm
  */
 
 const ADMIN = (() => {
@@ -16,78 +17,76 @@ const ADMIN = (() => {
       const res  = await fetch('/api/admin/users');
       const data = await res.json();
       if (!data.ok) {
-        container.innerHTML = '<div class="empty-state">Access denied.</div>';
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🚫</div><div class="empty-state-title">Access Denied</div></div>';
         return;
       }
       renderUsers(data.users);
     } catch (e) {
-      container.innerHTML = '<div class="empty-state">Load nahi hua!</div>';
+      container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-title">Load nahi hua!</div></div>';
     }
   }
 
   function renderUsers(users) {
     const container = document.getElementById('admin-users-list');
     if (!users || users.length === 0) {
-      container.innerHTML = '<div class="empty-state">Koi user nahi mila.</div>';
+      container.innerHTML = '<div class="empty-state"><div class="empty-state-title">Koi user nahi mila.</div></div>';
       return;
     }
 
     const currentId = APP.getCurrentUserId();
-
-    let html = `<div class="admin-users-grid">
-      <div class="admin-users-header">
-        <span>Naam / Block</span>
-        <span>Contact</span>
-        <span>Role</span>
-        <span>Actions</span>
-      </div>`;
+    let html = '';
 
     users.forEach(u => {
       const isSelf  = u.id === currentId;
       const isAdmin = u.role === 'admin';
+      const initials = u.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+
       html += `
-      <div class="admin-user-row ${isSelf ? 'self-row' : ''}">
-        <div class="user-name-block">
-          <strong>${escHtml(u.name)}</strong>
-          <span class="user-sub">${escHtml(u.block || '—')}</span>
-          ${isSelf ? '<span class="self-tag">You</span>' : ''}
-        </div>
-        <div class="user-contact">
-          <span>${escHtml(u.email)}</span>
-          <span class="user-sub">${escHtml(u.mobile)}</span>
-        </div>
-        <div>
-          <span class="role-chip ${isAdmin ? 'role-admin' : 'role-user'}">
-            ${isAdmin ? '👑 Admin' : '👤 User'}
-          </span>
+      <div class="admin-user-card ${isSelf ? 'self-row' : ''}">
+        <div class="admin-user-avatar">${escHtml(initials)}</div>
+        <div class="admin-user-info">
+          <div class="admin-user-name">
+            ${escHtml(u.name)}
+            <span class="role-chip ${isAdmin ? 'role-admin' : 'role-user'}">${isAdmin ? '👑 Admin' : '👤 User'}</span>
+            ${isSelf ? '<span class="self-tag">You</span>' : ''}
+          </div>
+          <div class="admin-user-sub">${escHtml(u.email)} · ${escHtml(u.mobile)} · ${escHtml(u.block || '—')}</div>
+          <div id="reset-pin-area-${escAttr(u.id)}" style="display:none" class="reset-pin-row">
+            <input type="number" id="reset-pin-input-${escAttr(u.id)}" placeholder="New 4-digit PIN"
+                   maxlength="4" inputmode="numeric" min="1000" max="9999">
+            <button class="btn btn-primary btn-sm"
+                    onclick="ADMIN.doResetPin('${escAttr(u.id)}','${escAttr(u.name)}')">Set PIN</button>
+            <button class="btn btn-ghost btn-sm"
+                    onclick="document.getElementById('reset-pin-area-${escAttr(u.id)}').style.display='none'">Cancel</button>
+          </div>
         </div>
         <div class="admin-user-actions">
           ${!isSelf ? `
-            <button class="btn btn-ghost btn-sm" onclick="ADMIN.promptResetPin('${escAttr(u.id)}', '${escAttr(u.name)}')">
-              🔑 Reset PIN
-            </button>
-            <button class="btn btn-danger btn-sm" onclick="ADMIN.confirmDelete('${escAttr(u.id)}', '${escAttr(u.name)}')">
-              🗑 Delete
-            </button>
-          ` : '<span class="text-muted">—</span>'}
+            <button class="btn btn-ghost btn-sm" onclick="ADMIN.showResetPin('${escAttr(u.id)}')">🔑 Reset</button>
+            <button class="btn btn-danger btn-sm" onclick="ADMIN.confirmDelete('${escAttr(u.id)}','${escAttr(u.name)}')">🗑</button>
+          ` : '<span class="text-muted" style="font-size:.78rem">Current User</span>'}
         </div>
       </div>`;
     });
 
-    html += '</div>';
     container.innerHTML = html;
   }
 
-  function promptResetPin(userId, userName) {
-    const newPin = prompt(`${userName} ka naya PIN set karein (4 digit):\n(Default: 1234)`, '1234');
-    if (newPin === null) return; // cancelled
+  function showResetPin(userId) {
+    const area = document.getElementById('reset-pin-area-' + userId);
+    if (area) {
+      area.style.display = area.style.display === 'none' ? 'flex' : 'none';
+      const input = document.getElementById('reset-pin-input-' + userId);
+      if (input) { input.value = '1234'; input.focus(); input.select(); }
+    }
+  }
+
+  async function doResetPin(userId, userName) {
+    const input = document.getElementById('reset-pin-input-' + userId);
+    const newPin = input ? String(input.value).trim() : '';
     if (!/^\d{4}$/.test(newPin)) {
       showToast('PIN sirf 4 digit ka hona chahiye!', 'red'); return;
     }
-    doResetPin(userId, userName, newPin);
-  }
-
-  async function doResetPin(userId, userName, newPin) {
     try {
       const res  = await fetch('/api/admin/reset-pin', {
         method: 'POST',
@@ -97,6 +96,8 @@ const ADMIN = (() => {
       const data = await res.json();
       if (data.ok) {
         showToast(data.msg || `${userName} ka PIN reset ho gaya!`);
+        const area = document.getElementById('reset-pin-area-' + userId);
+        if (area) area.style.display = 'none';
       } else {
         showToast(data.msg || 'Reset nahi hua!', 'red');
       }
@@ -105,29 +106,37 @@ const ADMIN = (() => {
     }
   }
 
-  async function confirmDelete(userId, userName) {
-    if (!confirm(`Kya aap "${userName}" ka account permanently delete karna chahte hain?\n\nIs user ka saara data bhi delete ho jayega. Ye action undo nahi ho sakta!`)) return;
-    try {
-      const res  = await fetch('/api/admin/delete-user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: userId })
-      });
-      const data = await res.json();
-      if (data.ok) {
-        showToast(data.msg || 'User delete ho gaya!');
-        await loadUsers(); // refresh list
-      } else {
-        showToast(data.msg || 'Delete nahi hua!', 'red');
+  function confirmDelete(userId, userName) {
+    showConfirm({
+      icon: '🗑️',
+      title: 'User Delete Karein?',
+      msg: `"${userName}" ka account permanently delete ho jayega. Uska saara data bhi hata diya jayega. Ye action undo nahi ho sakta!`,
+      okLabel: 'Delete',
+      okClass: 'btn-danger',
+      onOk: async () => {
+        try {
+          const res  = await fetch('/api/admin/delete-user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: userId })
+          });
+          const data = await res.json();
+          if (data.ok) {
+            showToast(data.msg || 'User delete ho gaya!');
+            await loadUsers();
+          } else {
+            showToast(data.msg || 'Delete nahi hua!', 'red');
+          }
+        } catch (e) {
+          showToast('Server error!', 'red');
+        }
       }
-    } catch (e) {
-      showToast('Server error!', 'red');
-    }
+    });
   }
 
   function init() {
     document.getElementById('admin-badge').addEventListener('click', open);
   }
 
-  return { init, open, promptResetPin, confirmDelete };
+  return { init, open, showResetPin, doResetPin, confirmDelete };
 })();
