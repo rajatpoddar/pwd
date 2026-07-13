@@ -5,24 +5,14 @@ services:
     build: .
     container_name: password_manager
     restart: unless-stopped
-    ports:
-      - "7730:7730"
+    network_mode: host
     volumes:
       - ./data:/app/data        # persist passwords & PIN outside container
     environment:
       - FLASK_ENV=production
-    networks:
-      - pwd_net
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:7730/')"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 15s
-
-networks:
-  pwd_net:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.28.0.0/24
