@@ -3,56 +3,121 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Password Manager - RAJAT</title>
+  <title>Password Manager</title>
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
 
-<!-- ═══════════════════════════ PIN SCREEN ═══════════════════════════ -->
-<div id="pin-screen">
-  <h2>🔐 Password Manager</h2>
-  <p id="pin-label">Enter PIN to unlock</p>
-  <div id="pin-dots">
-    <div class="dot" id="d0"></div>
-    <div class="dot" id="d1"></div>
-    <div class="dot" id="d2"></div>
-    <div class="dot" id="d3"></div>
+<!-- ═══════════════════════ SCREEN: LOGIN ════════════════════════════ -->
+<div id="screen-login" class="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">🔐</div>
+    <h2>Password Manager</h2>
+    <p class="auth-sub">Apne account mein login karein</p>
+    <div class="form-group">
+      <label>Email ya Mobile Number</label>
+      <input type="text" id="login-identifier" placeholder="email@example.com ya 9876543210"
+             inputmode="email" autocomplete="username">
+    </div>
+    <div id="login-error" class="form-error"></div>
+    <button class="btn btn-primary btn-block" id="btn-login">Aage Badhein →</button>
+    <div class="auth-divider">ya</div>
+    <button class="btn btn-ghost btn-block" id="btn-goto-register">Naya Account Banayein</button>
   </div>
-  <div id="pin-keypad">
-    <button class="key" data-key="1">1</button>
-    <button class="key" data-key="2">2</button>
-    <button class="key" data-key="3">3</button>
-    <button class="key" data-key="4">4</button>
-    <button class="key" data-key="5">5</button>
-    <button class="key" data-key="6">6</button>
-    <button class="key" data-key="7">7</button>
-    <button class="key" data-key="8">8</button>
-    <button class="key" data-key="9">9</button>
-    <button class="key del" data-key="clear">CLR</button>
-    <button class="key" data-key="0">0</button>
-    <button class="key del" data-key="back">⌫</button>
-  </div>
-  <div id="pin-error"></div>
-  <button id="change-pin-btn">PIN Change Karein</button>
 </div>
 
-<!-- ════════════════════════════ MAIN APP ════════════════════════════ -->
+<!-- ═══════════════════════ SCREEN: REGISTER ═════════════════════════ -->
+<div id="screen-register" class="auth-screen" style="display:none">
+  <div class="auth-card">
+    <div class="auth-logo">📝</div>
+    <h2>Naya Account</h2>
+    <p class="auth-sub">Apni details bharein</p>
+    <div class="form-group">
+      <label>Pura Naam *</label>
+      <input type="text" id="reg-name" placeholder="Apna naam likhein" autocomplete="name">
+    </div>
+    <div class="form-group">
+      <label>Block Naam *</label>
+      <input type="text" id="reg-block" placeholder="e.g. Peterbar, Khijri" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label>Email Address *</label>
+      <input type="email" id="reg-email" placeholder="email@example.com" autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label>Mobile Number *</label>
+      <input type="tel" id="reg-mobile" placeholder="10-digit mobile number"
+             maxlength="10" inputmode="numeric" autocomplete="tel">
+    </div>
+    <div class="form-group">
+      <label>4-Digit PIN *</label>
+      <input type="password" id="reg-pin" placeholder="••••" maxlength="4"
+             inputmode="numeric" autocomplete="new-password">
+    </div>
+    <div class="form-group">
+      <label>PIN Confirm Karein *</label>
+      <input type="password" id="reg-pin-confirm" placeholder="••••" maxlength="4"
+             inputmode="numeric" autocomplete="new-password">
+    </div>
+    <div id="reg-error" class="form-error"></div>
+    <button class="btn btn-primary btn-block" id="btn-register">Register Karein</button>
+    <div class="auth-divider">ya</div>
+    <button class="btn btn-ghost btn-block" id="btn-goto-login">Pehle Se Account Hai? Login Karein</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════ SCREEN: PIN ══════════════════════════════ -->
+<div id="screen-pin" class="auth-screen" style="display:none">
+  <div class="pin-card" id="pin-screen-inner">
+    <div class="auth-logo">🔒</div>
+    <h2 id="pin-welcome-name">Welcome!</h2>
+    <p class="auth-sub">Dashboard unlock karne ke liye PIN dalein</p>
+    <div id="pin-dots">
+      <div class="dot" id="d0"></div>
+      <div class="dot" id="d1"></div>
+      <div class="dot" id="d2"></div>
+      <div class="dot" id="d3"></div>
+    </div>
+    <div id="pin-keypad">
+      <button class="key" data-key="1">1</button>
+      <button class="key" data-key="2">2</button>
+      <button class="key" data-key="3">3</button>
+      <button class="key" data-key="4">4</button>
+      <button class="key" data-key="5">5</button>
+      <button class="key" data-key="6">6</button>
+      <button class="key" data-key="7">7</button>
+      <button class="key" data-key="8">8</button>
+      <button class="key" data-key="9">9</button>
+      <button class="key del" data-key="clear">CLR</button>
+      <button class="key" data-key="0">0</button>
+      <button class="key del" data-key="back">⌫</button>
+    </div>
+    <div id="pin-error" class="pin-error-msg"></div>
+    <button class="btn btn-ghost btn-sm pin-logout-btn" id="btn-pin-logout">← Logout</button>
+  </div>
+</div>
+
+<!-- ════════════════════════ MAIN APP ════════════════════════════════ -->
 <div id="app" style="display:none">
+  <!-- Topbar -->
   <div class="topbar">
     <h1>🔐 Password Manager</h1>
     <div class="topbar-actions">
-      <button class="btn btn-success" id="btn-export">⬇ Export Excel</button>
-      <button class="btn btn-primary" id="btn-bulk-add">+ Bulk Entry</button>
-      <button class="btn btn-ghost" id="btn-single-add">+ Single Entry</button>
-      <button class="btn btn-ghost" id="btn-change-pin-app">🔑 PIN</button>
+      <button class="btn btn-success" id="btn-export">⬇ Excel</button>
+      <button class="btn btn-primary" id="btn-bulk-add">+ Bulk</button>
+      <button class="btn btn-ghost" id="btn-single-add">+ Entry</button>
+      <button class="btn btn-ghost" id="btn-open-profile">👤 Profile</button>
+      <span id="admin-badge" class="admin-badge" style="display:none">⚙ Admin</span>
       <button class="btn btn-danger" id="btn-lock">🔒 Lock</button>
     </div>
   </div>
 
+  <!-- Tabs -->
   <div id="tabs-bar">
     <button id="add-category-btn">+ Category</button>
   </div>
 
+  <!-- Table -->
   <div class="table-wrapper">
     <div class="table-header">
       <h3 id="current-cat-title">Category</h3>
@@ -65,10 +130,86 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════ TOAST ══════════════════════════════ -->
+<!-- ════════════════════════ PROFILE PANEL ═══════════════════════════ -->
+<div class="modal-overlay" id="profile-modal">
+  <div class="modal modal-profile">
+    <div class="profile-header">
+      <div class="profile-avatar" id="profile-avatar-initials">R</div>
+      <div>
+        <h3 id="profile-name-display">—</h3>
+        <span class="profile-role-badge" id="profile-role-badge">User</span>
+      </div>
+      <button class="modal-close-btn" data-close="profile-modal">✕</button>
+    </div>
+
+    <div class="profile-section">
+      <div class="profile-info-row">
+        <span class="pir-label">📧 Email</span>
+        <span class="pir-value" id="profile-email-display">—</span>
+      </div>
+      <div class="profile-info-row">
+        <span class="pir-label">📱 Mobile</span>
+        <span class="pir-value" id="profile-mobile-display">—</span>
+      </div>
+      <div class="profile-info-row">
+        <span class="pir-label">🏘 Block</span>
+        <span class="pir-value" id="profile-block-display">—</span>
+      </div>
+    </div>
+
+    <div class="profile-section">
+      <h4 class="section-title">⚙️ Settings</h4>
+      <div class="form-group">
+        <label>Auto-Lock Timeout</label>
+        <p class="setting-desc">Browser tab band karne par ya is samay baad dashboard automatically lock ho jayega.</p>
+        <div class="timeout-options" id="timeout-options">
+          <button class="timeout-btn" data-timeout="15">15 Min</button>
+          <button class="timeout-btn" data-timeout="60">1 Hour</button>
+          <button class="timeout-btn" data-timeout="1440">24 Hours</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-section">
+      <h4 class="section-title">🔑 PIN Change Karein</h4>
+      <div class="form-group">
+        <label>Purana PIN</label>
+        <input type="password" id="old-pin-input" maxlength="4"
+               placeholder="••••" inputmode="numeric" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label>Naya PIN (4 digit)</label>
+        <input type="password" id="new-pin-input" maxlength="4"
+               placeholder="••••" inputmode="numeric" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label>Confirm Naya PIN</label>
+        <input type="password" id="confirm-pin-input" maxlength="4"
+               placeholder="••••" inputmode="numeric" autocomplete="off">
+      </div>
+      <button class="btn btn-primary" id="btn-save-pin">PIN Save Karein</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ ADMIN PANEL ═════════════════════════════ -->
+<div class="modal-overlay" id="admin-modal">
+  <div class="modal modal-admin">
+    <div class="admin-header">
+      <h3>⚙️ Admin Controls</h3>
+      <button class="modal-close-btn" data-close="admin-modal">✕</button>
+    </div>
+    <p class="admin-sub">Registered users ki list aur PIN reset.</p>
+    <div id="admin-users-list">
+      <div class="loading-state">Loading...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ TOAST ═══════════════════════════════════ -->
 <div id="toast"></div>
 
-<!-- ══════════════════════════ ENTRY MODAL ════════════════════════════ -->
+<!-- ════════════════════════ ENTRY MODAL ═════════════════════════════ -->
 <div class="modal-overlay" id="entry-modal">
   <div class="modal">
     <h3 id="entry-modal-title">Entry Add Karein</h3>
@@ -89,7 +230,7 @@
       <input type="text" id="cat-name-input" placeholder="e.g. NREGA, Bank, Email">
     </div>
     <div class="form-group">
-      <label>Columns (fields) define karein</label>
+      <label>Columns define karein</label>
       <div id="col-fields"></div>
       <button id="add-col-btn">+ Column Add Karein</button>
     </div>
@@ -100,33 +241,7 @@
   </div>
 </div>
 
-<!-- ═══════════════════════ CHANGE PIN MODAL ══════════════════════════ -->
-<div class="modal-overlay" id="pin-change-modal">
-  <div class="modal">
-    <h3>🔑 PIN Change Karein</h3>
-    <div class="form-group">
-      <label>Purana PIN (Old PIN)</label>
-      <input type="password" id="old-pin-input" maxlength="4"
-             placeholder="••••" inputmode="numeric" autocomplete="off">
-    </div>
-    <div class="form-group">
-      <label>Naya PIN (4 digit)</label>
-      <input type="password" id="new-pin-input" maxlength="4"
-             placeholder="••••" inputmode="numeric" autocomplete="off">
-    </div>
-    <div class="form-group">
-      <label>Confirm Naya PIN</label>
-      <input type="password" id="confirm-pin-input" maxlength="4"
-             placeholder="••••" inputmode="numeric" autocomplete="off">
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" data-close="pin-change-modal">Cancel</button>
-      <button class="btn btn-primary" id="btn-save-pin">PIN Save Karein</button>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════════════ BULK ENTRY MODAL ═══════════════════════════ -->
+<!-- ════════════════════════ BULK ENTRY MODAL ════════════════════════ -->
 <div class="modal-overlay" id="bulk-entry-modal">
   <div class="modal modal-wide">
     <h3 id="bulk-modal-title">📋 Bulk Entry Add Karein</h3>
@@ -147,8 +262,11 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════ SCRIPTS ══════════════════════════════ -->
+<!-- ════════════════════════ SCRIPTS ══════════════════════════════════ -->
+<script src="/static/js/auth.js"></script>
 <script src="/static/js/pin.js"></script>
+<script src="/static/js/profile.js"></script>
+<script src="/static/js/admin.js"></script>
 <script src="/static/js/categories.js"></script>
 <script src="/static/js/entries.js"></script>
 <script src="/static/js/export.js"></script>

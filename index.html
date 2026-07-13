@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Manager - RAJAT</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', 'Segoe UI', sans-serif; background: #1a1a2e; color: #eee; min-height: 100vh; font-size: 15px; }
+
+        /* PIN SCREEN */
+        #pin-screen {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; height: 100vh; gap: 20px;
+        }
+        #pin-screen h2 { font-size: 2rem; color: #a78bfa; font-weight: 700; }
+        #pin-screen p { color: #aaa; font-size: 1rem; }
+        #pin-dots { display: flex; gap: 14px; margin: 10px 0; }
+        .dot {
+            width: 18px; height: 18px; border-radius: 50%;
+            border: 2px solid #a78bfa; background: transparent;
+            transition: background 0.2s;
+        }
+        .dot.filled { background: #a78bfa; }
+        #pin-keypad { display: grid; grid-template-columns: repeat(3, 80px); gap: 12px; }
+        .key {
+            height: 68px; border-radius: 14px; border: none;
+            background: #16213e; color: #fff; font-size: 1.5rem; font-weight: 600;
+            cursor: pointer; transition: background 0.15s;
+        }
+        .key:hover { background: #a78bfa; }
+        .key.del { background: #2d2d44; font-size: 1.1rem; }
+        #pin-error { color: #f87171; font-size: 1rem; display: none; }
+        #change-pin-btn {
+            margin-top: 10px; background: none; border: 1px solid #555;
+            color: #aaa; padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 0.9rem;
+        }
+        #change-pin-btn:hover { border-color: #a78bfa; color: #a78bfa; }
+
+        /* MAIN APP */
+        #app { display: none; padding: 20px; max-width: 1200px; margin: 0 auto; }
+        .topbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px 24px; background: #16213e; border-radius: 12px;
+            margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .topbar h1 { font-size: 1.4rem; color: #a78bfa; font-weight: 700; }
+        .topbar-actions { display: flex; gap: 10px; }
+        .btn {
+            padding: 9px 18px; border-radius: 8px; border: none;
+            cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: all 0.15s;
+        }
+        .btn-primary { background: #a78bfa; color: #fff; }
+        .btn-primary:hover { background: #8b5cf6; }
+        .btn-danger { background: #f87171; color: #fff; }
+        .btn-danger:hover { background: #ef4444; }
+        .btn-ghost { background: #2d2d44; color: #ccc; }
+        .btn-ghost:hover { background: #3d3d5a; color: #fff; }
+        .btn-sm { padding: 6px 12px; font-size: 0.88rem; }
+
+        /* TABS */
+        #tabs-bar {
+            display: flex; gap: 8px; flex-wrap: wrap;
+            margin-bottom: 16px; align-items: center;
+        }
+        .tab {
+            padding: 9px 20px; border-radius: 20px; border: none;
+            background: #2d2d44; color: #aaa; cursor: pointer;
+            font-size: 0.95rem; font-weight: 500; transition: all 0.15s;
+        }
+        .tab.active { background: #a78bfa; color: #fff; }
+        .tab:hover:not(.active) { background: #3d3d5a; color: #fff; }
+        #add-category-btn {
+            padding: 8px 16px; border-radius: 20px; border: 2px dashed #555;
+            background: none; color: #888; cursor: pointer; font-size: 0.9rem;
+        }
+        #add-category-btn:hover { border-color: #a78bfa; color: #a78bfa; }
+
+        /* TABLE */
+        .table-wrapper { background: #16213e; border-radius: 12px; overflow: hidden; }
+        .table-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px 20px; border-bottom: 1px solid #2d2d44;
+        }
+        .table-header h3 { font-size: 1.1rem; color: #a78bfa; font-weight: 700; }
+        table { width: 100%; border-collapse: collapse; }
+        thead th {
+            background: #0f3460; padding: 13px 16px;
+            text-align: left; font-size: 0.88rem; color: #a78bfa;
+            text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;
+        }
+        tbody tr { border-bottom: 1px solid #1e1e38; transition: background 0.1s; }
+        tbody tr:hover { background: #1e1e38; }
+        tbody td {
+            padding: 13px 16px; font-size: 1rem;
+            cursor: pointer; user-select: none;
+        }
+        tbody td:last-child { cursor: default; }
+        .pass-cell { font-family: 'Courier New', monospace; letter-spacing: 0.08em; font-size: 1rem; }
+        .clickable-cell { position: relative; }
+        .clickable-cell:hover::after {
+            content: '📋';
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.85rem;
+            opacity: 0.5;
+        }
+        .action-btns { display: flex; gap: 6px; }
+        .empty-state {
+            text-align: center; padding: 50px; color: #666; font-size: 1rem;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.7); z-index: 100;
+            align-items: center; justify-content: center;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background: #1a1a2e; border: 1px solid #2d2d44;
+            border-radius: 16px; padding: 28px; width: 480px;
+            max-width: 95vw; max-height: 90vh; overflow-y: auto;
+        }
+        .modal h3 { font-size: 1.2rem; margin-bottom: 20px; color: #a78bfa; font-weight: 700; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 0.9rem; color: #aaa; margin-bottom: 5px; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 10px 13px; border-radius: 8px;
+            border: 1px solid #3d3d5a; background: #16213e;
+            color: #fff; font-size: 1rem; outline: none; font-family: 'Inter', sans-serif;
+        }
+        .form-group input:focus, .form-group select:focus { border-color: #a78bfa; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+        #col-fields { display: flex; flex-direction: column; gap: 8px; }
+        .col-row {
+            display: flex; gap: 8px; align-items: center;
+        }
+        .col-row input { flex: 1; }
+        .col-row button {
+            padding: 6px 10px; background: #f87171; border: none;
+            border-radius: 6px; color: #fff; cursor: pointer; font-size: 0.9rem;
+        }
+        #add-col-btn {
+            margin-top: 6px; background: none; border: 1px dashed #555;
+            color: #888; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 0.9rem;
+        }
+        #add-col-btn:hover { border-color: #a78bfa; color: #a78bfa; }
+
+        /* BULK ENTRY MODAL */
+        #bulk-entry-modal .modal {
+            width: 95vw; max-width: 1100px;
+        }
+        .bulk-table-wrap { overflow-x: auto; margin-bottom: 12px; }
+        .bulk-table { width: 100%; border-collapse: collapse; }
+        .bulk-table thead th {
+            background: #0f3460; padding: 10px 10px;
+            color: #a78bfa; font-size: 0.88rem; text-transform: uppercase;
+            letter-spacing: 0.04em; white-space: nowrap;
+        }
+        .bulk-table thead th.row-num-col { width: 36px; text-align: center; color: #666; }
+        .bulk-table thead th.del-col { width: 40px; }
+        .bulk-table tbody tr { border-bottom: 1px solid #1e1e38; }
+        .bulk-table tbody tr:hover { background: #1a1a38; }
+        .bulk-table tbody td { padding: 6px 6px; }
+        .bulk-table tbody td.row-num { text-align: center; color: #555; font-size: 0.85rem; padding-top: 12px; }
+        .bulk-input {
+            width: 100%; padding: 8px 10px; border-radius: 6px;
+            border: 1px solid #2d2d44; background: #0f1625;
+            color: #fff; font-size: 0.95rem; font-family: 'Inter', sans-serif;
+            outline: none; min-width: 80px;
+        }
+        .bulk-input:focus { border-color: #a78bfa; background: #16213e; }
+        .bulk-del-btn {
+            background: none; border: none; color: #555; font-size: 1.1rem;
+            cursor: pointer; padding: 4px 8px; border-radius: 6px; transition: all 0.15s;
+        }
+        .bulk-del-btn:hover { color: #f87171; background: #2d2d44; }
+        #add-bulk-row-btn {
+            background: none; border: 1px dashed #555; color: #888;
+            padding: 8px 18px; border-radius: 8px; cursor: pointer;
+            font-size: 0.9rem; margin-bottom: 4px; transition: all 0.15s;
+        }
+        #add-bulk-row-btn:hover { border-color: #a78bfa; color: #a78bfa; }
+        .bulk-count-info { font-size: 0.85rem; color: #666; margin-left: 10px; }
+
+        .toast {
+            position: fixed; bottom: 24px; right: 24px;
+            background: #22c55e; color: #fff; padding: 13px 22px;
+            border-radius: 10px; font-size: 1rem; font-weight: 600; z-index: 999;
+            transform: translateY(60px); opacity: 0; transition: all 0.3s;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+    </style>
+</head>
+<body>
+
+<!-- PIN SCREEN -->
+<div id="pin-screen">
+    <h2>🔐 Password Manager</h2>
+    <p id="pin-label">Enter PIN to unlock</p>
+    <div id="pin-dots">
+        <div class="dot" id="d0"></div>
+        <div class="dot" id="d1"></div>
+        <div class="dot" id="d2"></div>
+        <div class="dot" id="d3"></div>
+    </div>
+    <div id="pin-keypad">
+        <button class="key" onclick="pinKey('1')">1</button>
+        <button class="key" onclick="pinKey('2')">2</button>
+        <button class="key" onclick="pinKey('3')">3</button>
+        <button class="key" onclick="pinKey('4')">4</button>
+        <button class="key" onclick="pinKey('5')">5</button>
+        <button class="key" onclick="pinKey('6')">6</button>
+        <button class="key" onclick="pinKey('7')">7</button>
+        <button class="key" onclick="pinKey('8')">8</button>
+        <button class="key" onclick="pinKey('9')">9</button>
+        <button class="key del" onclick="pinKey('clear')">CLR</button>
+        <button class="key" onclick="pinKey('0')">0</button>
+        <button class="key del" onclick="pinKey('back')">⌫</button>
+    </div>
+    <div id="pin-error">Galat PIN! Dobara try karein.</div>
+    <button id="change-pin-btn" onclick="startChangePin()">PIN Change Karein</button>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+    <div class="topbar">
+        <h1>🔐 Password Manager</h1>
+        <div class="topbar-actions">
+            <button class="btn btn-primary" onclick="openBulkAdd()">+ Bulk Entry Add</button>
+            <button class="btn btn-ghost" onclick="openAddEntry()">+ Single Entry</button>
+            <button class="btn btn-ghost" onclick="openChangePinFromApp()">PIN Change</button>
+            <button class="btn btn-danger" onclick="logout()">Lock</button>
+        </div>
+    </div>
+    <div id="tabs-bar">
+        <button id="add-category-btn" onclick="openAddCategory()">+ Category</button>
+    </div>
+    <div class="table-wrapper">
+        <div class="table-header">
+            <h3 id="current-cat-title">Category</h3>
+            <div>
+                <button class="btn btn-ghost btn-sm" onclick="openEditCategory()">✏️ Rename</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteCategory()">🗑 Delete</button>
+            </div>
+        </div>
+        <div id="table-area"></div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ADD/EDIT ENTRY MODAL -->
+<div class="modal-overlay" id="entry-modal">
+    <div class="modal">
+        <h3 id="entry-modal-title">Entry Add Karein</h3>
+        <div id="entry-form-fields"></div>
+        <div class="modal-actions">
+            <button class="btn btn-ghost" onclick="closeModal('entry-modal')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveEntry()">Save</button>
+        </div>
+    </div>
+</div>
+
+<!-- ADD CATEGORY MODAL -->
+<div class="modal-overlay" id="cat-modal">
+    <div class="modal">
+        <h3 id="cat-modal-title">Naya Category Banayein</h3>
+        <div class="form-group">
+            <label>Category Name</label>
+            <input type="text" id="cat-name-input" placeholder="e.g. NREGA, Bank, Email">
+        </div>
+        <div class="form-group">
+            <label>Columns (fields) define karein</label>
+            <div id="col-fields"></div>
+            <button id="add-col-btn" onclick="addColField()">+ Column Add Karein</button>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-ghost" onclick="closeModal('cat-modal')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveCategory()">Category Banayein</button>
+        </div>
+    </div>
+</div>
+
+<!-- CHANGE PIN MODAL -->
+<div class="modal-overlay" id="pin-change-modal">
+    <div class="modal">
+        <h3>PIN Change Karein</h3>
+        <div class="form-group">
+            <label>Naya PIN (4 digit)</label>
+            <input type="password" id="new-pin-input" maxlength="4" placeholder="0000" inputmode="numeric">
+        </div>
+        <div class="form-group">
+            <label>Confirm PIN</label>
+            <input type="password" id="confirm-pin-input" maxlength="4" placeholder="0000" inputmode="numeric">
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-ghost" onclick="closeModal('pin-change-modal')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveNewPin()">PIN Save Karein</button>
+        </div>
+    </div>
+</div>
+
+<!-- BULK ADD ENTRIES MODAL -->
+<div class="modal-overlay" id="bulk-entry-modal">
+    <div class="modal" style="width:95vw;max-width:1100px;">
+        <h3 id="bulk-modal-title">📋 Bulk Entry Add Karein</h3>
+        <div class="bulk-table-wrap">
+            <table class="bulk-table">
+                <thead id="bulk-thead"></thead>
+                <tbody id="bulk-tbody"></tbody>
+            </table>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+            <button id="add-bulk-row-btn" onclick="addBulkRow()">+ Row Add Karein</button>
+            <span class="bulk-count-info" id="bulk-count-info"></span>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-ghost" onclick="closeModal('bulk-entry-modal')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveBulkEntries()">Save All Entries</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ===================== CONSTANTS & STATE =====================
+const DEFAULT_PIN = '1234';
+const SESSION_KEY = 'pm_session';
+const DATA_KEY = 'pm_data';
+const PIN_KEY = 'pm_pin';
+const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+
+let currentCategory = null;
+let editingEntryIndex = null;
+let pinBuffer = '';
+let pinMode = 'unlock'; // 'unlock' | 'set-new'
+
+// ===================== PIN HASHING (simple, client-side) =====================
+async function hashPin(pin) {
+    const msgBuffer = new TextEncoder().encode(pin + 'NregaBot_salt_RAJAT');
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// ===================== SESSION =====================
+function checkSession() {
+    try {
+        const s = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+        if (s && (Date.now() - s.ts) < SESSION_DURATION) {
+            showApp();
+            return true;
+        }
+    } catch(e) {}
+    return false;
+}
+
+function setSession() {
+    localStorage.setItem(SESSION_KEY, JSON.stringify({ ts: Date.now() }));
+}
+
+function logout() {
+    localStorage.removeItem(SESSION_KEY);
+    location.reload();
+}
+
+// ===================== PIN SCREEN =====================
+function pinKey(k) {
+    if (k === 'clear') { pinBuffer = ''; }
+    else if (k === 'back') { pinBuffer = pinBuffer.slice(0, -1); }
+    else if (pinBuffer.length < 4) { pinBuffer += k; }
+    updateDots();
+    if (pinBuffer.length === 4) {
+        setTimeout(() => verifyPin(), 150);
+    }
+}
+
+function updateDots() {
+    for (let i = 0; i < 4; i++) {
+        document.getElementById('d' + i).classList.toggle('filled', i < pinBuffer.length);
+    }
+}
+
+async function verifyPin() {
+    const stored = localStorage.getItem(PIN_KEY) || await hashPin(DEFAULT_PIN);
+    const entered = await hashPin(pinBuffer);
+    pinBuffer = '';
+    updateDots();
+    if (entered === stored) {
+        document.getElementById('pin-error').style.display = 'none';
+        setSession();
+        showApp();
+    } else {
+        const err = document.getElementById('pin-error');
+        err.style.display = 'block';
+        err.textContent = 'Galat PIN! Dobara try karein.';
+        // shake effect
+        const screen = document.getElementById('pin-screen');
+        screen.style.animation = 'none';
+        setTimeout(() => { screen.style.animation = ''; }, 10);
+    }
+}
+
+function showApp() {
+    document.getElementById('pin-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    loadApp();
+}
+
+// Change PIN from pin screen (needs old PIN verification)
+function startChangePin() {
+    openModal('pin-change-modal');
+    document.getElementById('new-pin-input').value = '';
+    document.getElementById('confirm-pin-input').value = '';
+}
+
+function openChangePinFromApp() {
+    openModal('pin-change-modal');
+    document.getElementById('new-pin-input').value = '';
+    document.getElementById('confirm-pin-input').value = '';
+}
+
+async function saveNewPin() {
+    const n = document.getElementById('new-pin-input').value.trim();
+    const c = document.getElementById('confirm-pin-input').value.trim();
+    if (!/^\d{4}$/.test(n)) { showToast('PIN sirf 4 digit ka hona chahiye!', 'red'); return; }
+    if (n !== c) { showToast('Dono PIN match nahi karte!', 'red'); return; }
+    const hashed = await hashPin(n);
+    localStorage.setItem(PIN_KEY, hashed);
+    closeModal('pin-change-modal');
+    showToast('PIN successfully change ho gaya!');
+}
+</script>
+
+<script>
+// ===================== DATA =====================
+function getData() {
+    try {
+        return JSON.parse(localStorage.getItem(DATA_KEY)) || { categories: [] };
+    } catch(e) { return { categories: [] }; }
+}
+
+function saveData(data) {
+    localStorage.setItem(DATA_KEY, JSON.stringify(data));
+}
+
+function getDefaultData() {
+    return {
+        categories: [
+            {
+                id: 'nrega',
+                name: 'NREGA',
+                columns: ['P.Code', 'Panchayat', 'PS User', 'PS Pass', 'Mukhiya User', 'Mukhiya Pass'],
+                entries: [
+                    ['7','BHURKUNDI','346906553','Bhur@007','34795850875','Bhur@007'],
+                    ['8','DHAWA','3493233109','Dhawa@008','34795906774','Dhawa@008'],
+                    ['14','KASRAYDIH','3425166865','Kasra@014','34798925315','Kasr@014'],
+                    ['19','MATIYARA','34926505269','Mati@019','34794751529','Matiy@019'],
+                    ['21','PALOJORI','3425185498','Paloj@021','34794546567','Paloj@021']
+                ]
+            }
+        ]
+    };
+}
+
+// ===================== APP LOAD =====================
+function loadApp() {
+    let data = getData();
+    if (!data.categories || data.categories.length === 0) {
+        data = getDefaultData();
+        saveData(data);
+    }
+    currentCategory = data.categories[0].id;
+    renderTabs();
+    renderTable();
+}
+
+// ===================== TABS =====================
+function renderTabs() {
+    const data = getData();
+    const bar = document.getElementById('tabs-bar');
+    // Remove old tabs
+    bar.querySelectorAll('.tab').forEach(t => t.remove());
+    const addBtn = document.getElementById('add-category-btn');
+    data.categories.forEach(cat => {
+        const t = document.createElement('button');
+        t.className = 'tab' + (cat.id === currentCategory ? ' active' : '');
+        t.textContent = cat.name;
+        t.onclick = () => { currentCategory = cat.id; renderTabs(); renderTable(); };
+        bar.insertBefore(t, addBtn);
+    });
+}
+
+// ===================== TABLE =====================
+function renderTable() {
+    const data = getData();
+    const cat = data.categories.find(c => c.id === currentCategory);
+    document.getElementById('current-cat-title').textContent = cat ? cat.name : '';
+    const area = document.getElementById('table-area');
+    if (!cat || cat.entries.length === 0) {
+        area.innerHTML = '<div class="empty-state">Koi entry nahi hai. "Entry Add Karein" button se add karein.</div>';
+        return;
+    }
+    let html = '<table><thead><tr>';
+    cat.columns.forEach(col => { html += `<th>${col}</th>`; });
+    html += '<th>Actions</th></tr></thead><tbody>';
+    cat.entries.forEach((row, i) => {
+        html += '<tr>';
+        row.forEach((cell, j) => {
+            const isPass = cat.columns[j].toLowerCase().includes('pass') ||
+                           cat.columns[j].toLowerCase().includes('password');
+            html += `<td class="clickable-cell ${isPass ? 'pass-cell' : ''}" onclick="copyText('${escapeAttr(cell)}')">${cell}</td>`;
+        });
+        html += `<td><div class="action-btns">
+            <button class="btn btn-ghost btn-sm" onclick="openEditEntry(${i})">✏️</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteEntry(${i})">🗑</button>
+        </div></td></tr>`;
+    });
+    html += '</tbody></table>';
+    area.innerHTML = html;
+}
+
+function escapeAttr(s) {
+    return String(s).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+// ===================== COPY =====================
+function copyText(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        showToast('✓ Copied!');
+    });
+}
+</script>
+
+<script>
+// ===================== ENTRY CRUD =====================
+// Category ID locked at modal-open time, not at save time
+let activeModalCategoryId = null;
+
+function openAddEntry() {
+    editingEntryIndex = null;
+    const data = getData();
+    const cat = data.categories.find(c => c.id === currentCategory);
+    if (!cat) { showToast('Pehle ek category banayein!', 'red'); return; }
+    activeModalCategoryId = cat.id;
+    document.getElementById('entry-modal-title').textContent = 'Entry Add Karein - ' + cat.name;
+    const fields = document.getElementById('entry-form-fields');
+    fields.innerHTML = '';
+    cat.columns.forEach((col, i) => {
+        fields.innerHTML += `<div class="form-group">
+            <label>${col}</label>
+            <input type="text" id="ef_${i}" placeholder="${col}">
+        </div>`;
+    });
+    openModal('entry-modal');
+}
+
+function openEditEntry(idx) {
+    editingEntryIndex = idx;
+    const data = getData();
+    const cat = data.categories.find(c => c.id === currentCategory);
+    activeModalCategoryId = cat.id;
+    document.getElementById('entry-modal-title').textContent = 'Entry Edit Karein - ' + cat.name;
+    const fields = document.getElementById('entry-form-fields');
+    fields.innerHTML = '';
+    cat.columns.forEach((col, i) => {
+        fields.innerHTML += `<div class="form-group">
+            <label>${col}</label>
+            <input type="text" id="ef_${i}" value="${escapeAttr(cat.entries[idx][i] || '')}" placeholder="${col}">
+        </div>`;
+    });
+    openModal('entry-modal');
+}
+
+function saveEntry() {
+    const data = getData();
+    const cat = data.categories.find(c => c.id === activeModalCategoryId);
+    if (!cat) { showToast('Category nahi mili!', 'red'); return; }
+    const row = cat.columns.map((_, i) => {
+        const el = document.getElementById('ef_' + i);
+        return el ? el.value.trim() : '';
+    });
+    if (editingEntryIndex === null) {
+        cat.entries.push(row);
+    } else {
+        cat.entries[editingEntryIndex] = row;
+    }
+    saveData(data);
+    closeModal('entry-modal');
+    // Switch view to the category where entry was saved
+    currentCategory = activeModalCategoryId;
+    renderTabs();
+    renderTable();
+    showToast(editingEntryIndex === null ? 'Entry add ho gayi!' : 'Entry update ho gayi!');
+}
+
+function deleteEntry(idx) {
+    if (!confirm('Kya aap is entry ko delete karna chahte hain?')) return;
+    const data = getData();
+    const cat = data.categories.find(c => c.id === currentCategory);
+    cat.entries.splice(idx, 1);
+    saveData(data);
+    renderTable();
+    showToast('Entry delete ho gayi!');
+}
+
+// ===================== BULK ADD =====================
+let bulkColumns = [];
+let bulkCategoryId = null;
+
+function openBulkAdd() {
+    const data = getData();
+    const cat = data.categories.find(c => c.id === currentCategory);
+    if (!cat) { showToast('Pehle ek category banayein!', 'red'); return; }
+    bulkCategoryId = cat.id;
+    bulkColumns = cat.columns;
+    document.getElementById('bulk-modal-title').textContent = '📋 Bulk Entry Add — ' + cat.name;
+
+    // Build header
+    const thead = document.getElementById('bulk-thead');
+    thead.innerHTML = '<tr><th class="row-num-col">#</th>' +
+        bulkColumns.map(c => `<th>${c}</th>`).join('') +
+        '<th class="del-col"></th></tr>';
+
+    // Clear body and add 5 default rows
+    document.getElementById('bulk-tbody').innerHTML = '';
+    for (let i = 0; i < 5; i++) addBulkRow();
+
+    updateBulkCount();
+    openModal('bulk-entry-modal');
+}
+
+function addBulkRow() {
+    const tbody = document.getElementById('bulk-tbody');
+    const rowNum = tbody.querySelectorAll('tr').length + 1;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="row-num">${rowNum}</td>` +
+        bulkColumns.map((col, j) => {
+            const isPass = col.toLowerCase().includes('pass');
+            return `<td><input class="bulk-input" type="text" 
+                placeholder="${col}" 
+                style="${isPass ? 'font-family:Courier New,monospace;' : ''}"
+                data-col="${j}"></td>`;
+        }).join('') +
+        `<td><button class="bulk-del-btn" onclick="removeBulkRow(this)" title="Row hatao">✕</button></td>`;
+    tbody.appendChild(tr);
+    updateBulkCount();
+    // Focus first input of new row
+    tr.querySelector('.bulk-input').focus();
+}
+
+function removeBulkRow(btn) {
+    const tbody = document.getElementById('bulk-tbody');
+    if (tbody.querySelectorAll('tr').length <= 1) {
+        showToast('Kam se kam ek row honi chahiye!', 'red'); return;
+    }
+    btn.closest('tr').remove();
+    // Renumber
+    tbody.querySelectorAll('tr').forEach((tr, i) => {
+        tr.querySelector('.row-num').textContent = i + 1;
+    });
+    updateBulkCount();
+}
+
+function updateBulkCount() {
+    const count = document.getElementById('bulk-tbody').querySelectorAll('tr').length;
+    document.getElementById('bulk-count-info').textContent = `${count} row${count !== 1 ? 's' : ''}`;
+}
+
+function saveBulkEntries() {
+    const tbody = document.getElementById('bulk-tbody');
+    const rows = tbody.querySelectorAll('tr');
+    const newEntries = [];
+    let skipped = 0;
+
+    rows.forEach(tr => {
+        const inputs = tr.querySelectorAll('.bulk-input');
+        const values = Array.from(inputs).map(inp => inp.value.trim());
+        // Skip completely empty rows silently
+        if (values.every(v => v === '')) { skipped++; return; }
+        newEntries.push(values);
+    });
+
+    if (newEntries.length === 0) {
+        showToast('Koi entry nahi bhari! Kuch fields fill karein.', 'red'); return;
+    }
+
+    const data = getData();
+    const cat = data.categories.find(c => c.id === bulkCategoryId);
+    if (!cat) { showToast('Category nahi mili!', 'red'); return; }
+    cat.entries.push(...newEntries);
+    saveData(data);
+    closeModal('bulk-entry-modal');
+    // Switch view to the category where entries were saved
+    currentCategory = bulkCategoryId;
+    renderTabs();
+    renderTable();
+    const msg = skipped > 0
+        ? `${newEntries.length} entries save hui! (${skipped} empty rows skip ki)`
+        : `${newEntries.length} entries save ho gayi!`;
+    showToast(msg);
+}
+
+// ===================== CATEGORY CRUD =====================
+let editingCategoryMode = false;
+
+function openAddCategory() {
+    editingCategoryMode = false;
+    document.getElementById('cat-modal-title').textContent = 'Naya Category Banayein';
+    document.getElementById('cat-name-input').value = '';
+    document.getElementById('col-fields').innerHTML = '';
+    addColField('P.Code');
+    addColField('Name');
+    addColField('Username');
+    addColField('Password');
+    openModal('cat-modal');
+}
+
+function openEditCategory() {
+    const data = getData();
+    const cat = data.categories.find(c => c.id === currentCategory);
+    if (!cat) return;
+    editingCategoryMode = true;
+    document.getElementById('cat-modal-title').textContent = 'Category Edit Karein';
+    document.getElementById('cat-name-input').value = cat.name;
+    document.getElementById('col-fields').innerHTML = '';
+    cat.columns.forEach(col => addColField(col));
+    openModal('cat-modal');
+}
+
+function addColField(value = '') {
+    const container = document.getElementById('col-fields');
+    const row = document.createElement('div');
+    row.className = 'col-row';
+    row.innerHTML = `<input type="text" placeholder="Column naam" value="${escapeAttr(value)}">
+        <button onclick="this.parentElement.remove()">✕</button>`;
+    container.appendChild(row);
+}
+
+function saveCategory() {
+    const name = document.getElementById('cat-name-input').value.trim();
+    if (!name) { showToast('Category naam zaruri hai!', 'red'); return; }
+    const cols = Array.from(document.querySelectorAll('#col-fields .col-row input'))
+        .map(i => i.value.trim()).filter(v => v);
+    if (cols.length === 0) { showToast('Kam se kam ek column hona chahiye!', 'red'); return; }
+    const data = getData();
+    if (editingCategoryMode) {
+        const cat = data.categories.find(c => c.id === currentCategory);
+        cat.name = name;
+        // Adjust entries to match new column count
+        const oldLen = cat.columns.length;
+        cat.columns = cols;
+        cat.entries = cat.entries.map(e => {
+            const newE = cols.map((_, i) => e[i] || '');
+            return newE;
+        });
+    } else {
+        const id = 'cat_' + Date.now();
+        data.categories.push({ id, name, columns: cols, entries: [] });
+        currentCategory = id;
+    }
+    saveData(data);
+    closeModal('cat-modal');
+    renderTabs();
+    renderTable();
+    showToast(editingCategoryMode ? 'Category update ho gayi!' : 'Naya category ban gaya!');
+}
+
+function deleteCategory() {
+    const data = getData();
+    if (data.categories.length <= 1) { showToast('Kam se kam ek category rakhna zaruri hai!', 'red'); return; }
+    const cat = data.categories.find(c => c.id === currentCategory);
+    if (!confirm(`"${cat.name}" category aur uski saari entries delete ho jaengi. Confirm?`)) return;
+    data.categories = data.categories.filter(c => c.id !== currentCategory);
+    saveData(data);
+    currentCategory = data.categories[0].id;
+    renderTabs();
+    renderTable();
+    showToast('Category delete ho gayi!');
+}
+
+// ===================== MODAL HELPERS =====================
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => {
+        if (e.target === overlay) overlay.classList.remove('open');
+    });
+});
+
+// ===================== TOAST =====================
+function showToast(msg, type = 'green') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.background = type === 'red' ? '#ef4444' : '#22c55e';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ===================== INIT =====================
+window.addEventListener('DOMContentLoaded', () => {
+    if (!checkSession()) {
+        // Show PIN screen - already visible by default
+    }
+
+    // Physical keyboard support for PIN
+    document.addEventListener('keydown', (e) => {
+        if (document.getElementById('pin-screen').style.display === 'none') return;
+        // Ignore if user is typing in an input field
+        if (e.target.tagName === 'INPUT') return;
+        if (e.key >= '0' && e.key <= '9') { pinKey(e.key); }
+        else if (e.key === 'Backspace') { pinKey('back'); }
+        else if (e.key === 'Delete' || e.key === 'Escape') { pinKey('clear'); }
+    });
+
+    // Tab key in bulk table: move to next input, Enter = add new row from last cell
+    document.getElementById('bulk-entry-modal').addEventListener('keydown', (e) => {
+        if (!e.target.classList.contains('bulk-input')) return;
+        const allInputs = Array.from(document.querySelectorAll('#bulk-tbody .bulk-input'));
+        const idx = allInputs.indexOf(e.target);
+        if (e.key === 'Enter' || (e.key === 'Tab' && !e.shiftKey && idx === allInputs.length - 1)) {
+            e.preventDefault();
+            addBulkRow();
+        }
+    });
+});
+</script>
+</body>
+</html>

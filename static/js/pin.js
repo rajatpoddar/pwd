@@ -1,6 +1,5 @@
 /**
- * pin.js — PIN screen logic
- * Communicates with /api/pin/verify and /api/pin/change
+ * pin.js — PIN screen logic (multi-user)
  */
 
 const PIN = (() => {
@@ -14,12 +13,17 @@ const PIN = (() => {
   }
 
   function setError(msg) {
-    const el = document.getElementById('pin-error');
-    el.textContent = msg;
+    document.getElementById('pin-error').textContent = msg;
   }
 
   function clearError() {
     document.getElementById('pin-error').textContent = '';
+  }
+
+  function reset() {
+    buffer = '';
+    updateDots();
+    clearError();
   }
 
   async function verify() {
@@ -27,20 +31,20 @@ const PIN = (() => {
     buffer = '';
     updateDots();
     try {
-      const res = await fetch('/api/pin/verify', {
+      const res = await fetch('/api/auth/pin/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pin })
       });
-      if (res.ok) {
+      const data = await res.json();
+      if (res.ok && data.ok) {
         clearError();
-        APP.showApp();
+        await APP.showApp(data);
       } else {
-        setError('Galat PIN! Dobara try karein.');
-        // shake
-        const screen = document.getElementById('pin-screen');
+        setError(data.msg || 'Galat PIN! Dobara try karein.');
+        const screen = document.getElementById('pin-screen-inner');
         screen.classList.remove('shake');
-        void screen.offsetWidth; // reflow
+        void screen.offsetWidth;
         screen.classList.add('shake');
         setTimeout(() => screen.classList.remove('shake'), 500);
       }
@@ -57,62 +61,19 @@ const PIN = (() => {
     if (buffer.length === 4) setTimeout(verify, 150);
   }
 
-  // ── Change PIN ──────────────────────────────────────────────────────────
-  async function saveNewPin() {
-    const old_pin     = document.getElementById('old-pin-input').value.trim();
-    const new_pin     = document.getElementById('new-pin-input').value.trim();
-    const confirm_pin = document.getElementById('confirm-pin-input').value.trim();
-
-    try {
-      const res = await fetch('/api/pin/change', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ old_pin, new_pin, confirm_pin })
-      });
-      const data = await res.json();
-      if (data.ok) {
-        MODAL.close('pin-change-modal');
-        showToast(data.msg || 'PIN change ho gaya!');
-      } else {
-        showToast(data.msg || 'PIN change nahi hua!', 'red');
-      }
-    } catch (e) {
-      showToast('Server error!', 'red');
-    }
-  }
-
-  function openChangePinModal() {
-    document.getElementById('old-pin-input').value     = '';
-    document.getElementById('new-pin-input').value     = '';
-    document.getElementById('confirm-pin-input').value = '';
-    MODAL.open('pin-change-modal');
-  }
-
-  // ── Init ────────────────────────────────────────────────────────────────
   function init() {
-    // Keypad click
     document.querySelectorAll('.key').forEach(btn => {
       btn.addEventListener('click', () => key(btn.dataset.key));
     });
 
-    // Physical keyboard (only on pin screen)
     document.addEventListener('keydown', e => {
-      if (document.getElementById('pin-screen').style.display === 'none') return;
+      if (document.getElementById('screen-pin').style.display === 'none') return;
       if (e.target.tagName === 'INPUT') return;
       if (e.key >= '0' && e.key <= '9') key(e.key);
       else if (e.key === 'Backspace') key('back');
       else if (e.key === 'Escape' || e.key === 'Delete') key('clear');
     });
-
-    // Change PIN buttons
-    document.getElementById('change-pin-btn')
-      .addEventListener('click', openChangePinModal);
-    document.getElementById('btn-change-pin-app')
-      .addEventListener('click', openChangePinModal);
-
-    document.getElementById('btn-save-pin')
-      .addEventListener('click', saveNewPin);
   }
 
-  return { init };
+  return { init, reset };
 })();

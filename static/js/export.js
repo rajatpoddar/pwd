@@ -5,7 +5,6 @@
 const EXPORT = (() => {
   function toExcel() {
     showToast('Excel export ho raha hai...', 'green');
-    // Server generates the xlsx file and sends it as download
     const a = document.createElement('a');
     a.href = '/api/export/excel';
     a.download = '';
