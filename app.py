@@ -123,24 +123,24 @@ def api_register():
 
     # Validation
     if not name:
-        return jsonify({'ok': False, 'msg': 'Naam zaruri hai!'}), 400
+        return jsonify({'ok': False, 'msg': 'Name is required!'}), 400
     if not block:
-        return jsonify({'ok': False, 'msg': 'Block naam zaruri hai!'}), 400
+        return jsonify({'ok': False, 'msg': 'Block name is required!'}), 400
     if not email or '@' not in email:
-        return jsonify({'ok': False, 'msg': 'Valid email dalein!'}), 400
+        return jsonify({'ok': False, 'msg': 'Please enter a valid email!'}), 400
     if not mobile.isdigit() or len(mobile) != 10:
-        return jsonify({'ok': False, 'msg': 'Mobile number 10 digit ka hona chahiye!'}), 400
+        return jsonify({'ok': False, 'msg': 'Mobile number must be 10 digits!'}), 400
     if not pin.isdigit() or len(pin) != 4:
-        return jsonify({'ok': False, 'msg': 'PIN sirf 4 digit ka hona chahiye!'}), 400
+        return jsonify({'ok': False, 'msg': 'PIN must be exactly 4 digits!'}), 400
 
     users = load_users()
 
     # Check duplicate email or mobile
     for u in users.values():
         if u.get('email') == email:
-            return jsonify({'ok': False, 'msg': 'Ye email pehle se registered hai!'}), 400
+            return jsonify({'ok': False, 'msg': 'This email is already registered!'}), 400
         if u.get('mobile') == mobile:
-            return jsonify({'ok': False, 'msg': 'Ye mobile number pehle se registered hai!'}), 400
+            return jsonify({'ok': False, 'msg': 'This mobile number is already registered!'}), 400
 
     # Create user
     uid = 'user_' + uuid.uuid4().hex[:12]
@@ -165,7 +165,7 @@ def api_login():
     identifier = str(body.get('identifier', '')).strip().lower()
 
     if not identifier:
-        return jsonify({'ok': False, 'msg': 'Email ya mobile number dalein!'}), 400
+        return jsonify({'ok': False, 'msg': 'Please enter your email or mobile number!'}), 400
 
     users = load_users()
     matched_user = None
@@ -175,7 +175,7 @@ def api_login():
             break
 
     if not matched_user:
-        return jsonify({'ok': False, 'msg': 'Koi account nahi mila is email/mobile se!'}), 404
+        return jsonify({'ok': False, 'msg': 'No account found with this email/mobile!'}), 404
 
     # Set session — PIN verification still pending
     session['user_id']      = matched_user['id']
@@ -183,7 +183,7 @@ def api_login():
     return jsonify({
         'ok': True,
         'name': matched_user['name'],
-        'msg': f'Welcome {matched_user["name"]}! Ab PIN dalein.'
+        'msg': f'Welcome {matched_user["name"]}! Please enter your PIN.'
     })
 
 
@@ -196,7 +196,7 @@ def api_pin_verify():
     users = load_users()
     user  = users.get(current_user_id())
     if not user:
-        return jsonify({'ok': False, 'msg': 'User nahi mila!'}), 404
+        return jsonify({'ok': False, 'msg': 'User not found!'}), 404
 
     if hash_pin(pin) == user.get('pin_hash', ''):
         session['pin_verified'] = True
@@ -207,7 +207,7 @@ def api_pin_verify():
             'role': user.get('role', 'user'),
             'lock_timeout': user.get('lock_timeout', 15)
         })
-    return jsonify({'ok': False, 'msg': 'Galat PIN! Dobara try karein.'}), 401
+    return jsonify({'ok': False, 'msg': 'Wrong PIN! Please try again.'}), 401
 
 
 @app.route('/api/auth/logout', methods=['POST'])
@@ -275,7 +275,7 @@ def api_set_lock_timeout():
     uid   = current_user_id()
     users[uid]['lock_timeout'] = timeout
     save_users(users)
-    return jsonify({'ok': True, 'msg': 'Lock timeout update ho gaya!', 'lock_timeout': timeout})
+    return jsonify({'ok': True, 'msg': 'Lock timeout updated!', 'lock_timeout': timeout})
 
 
 @app.route('/api/profile/change-pin', methods=['POST'])
@@ -292,15 +292,15 @@ def api_change_pin():
     user  = users.get(uid)
 
     if hash_pin(old_pin) != user.get('pin_hash', ''):
-        return jsonify({'ok': False, 'msg': 'Purana PIN galat hai!'}), 403
+        return jsonify({'ok': False, 'msg': 'Old PIN is incorrect!'}), 403
     if not new_pin.isdigit() or len(new_pin) != 4:
-        return jsonify({'ok': False, 'msg': 'Naya PIN sirf 4 digit ka hona chahiye!'}), 400
+        return jsonify({'ok': False, 'msg': 'New PIN must be exactly 4 digits!'}), 400
     if new_pin != conf_pin:
-        return jsonify({'ok': False, 'msg': 'Dono PIN match nahi karte!'}), 400
+        return jsonify({'ok': False, 'msg': 'PINs do not match!'}), 400
 
     users[uid]['pin_hash'] = hash_pin(new_pin)
     save_users(users)
-    return jsonify({'ok': True, 'msg': 'PIN successfully change ho gaya!'})
+    return jsonify({'ok': True, 'msg': 'PIN changed successfully!'})
 
 # ══════════════════════════════════════════════════════════════════════════════
 # DATA APIs (per-user)
@@ -374,7 +374,8 @@ def api_export_excel():
         ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=n_cols)
         ic = ws.cell(row=2, column=1,
             value=(f"Exported: {datetime.now().strftime('%d %B %Y  %I:%M %p')}"
-                   f"   |   Total Entries: {len(entries)}"))
+                   f"   |   Total Entries: {len(entries)}"
+                   f"   |   Password Manager by NregaBot.com"))
         ic.fill = INFO_FILL; ic.font = INFO_FONT; ic.alignment = CENTER
         ws.row_dimensions[2].height = 18
 
@@ -420,7 +421,7 @@ def api_export_excel():
     ws_sum.row_dimensions[1].height = 32
     ws_sum.merge_cells('A2:C2')
     d = ws_sum.cell(row=2, column=1,
-        value=f"Generated: {datetime.now().strftime('%d %B %Y  %I:%M %p')}")
+        value=f"Generated: {datetime.now().strftime('%d %B %Y  %I:%M %p')}   |   Password Manager by NregaBot.com")
     d.fill = INFO_FILL; d.font = INFO_FONT; d.alignment = CENTER
     ws_sum.row_dimensions[2].height = 18
     for hdr, col in [("Category",1),("Total Entries",2),("Columns",3)]:
@@ -478,17 +479,17 @@ def api_admin_reset_pin():
     new_pin = str(body.get('new_pin', '1234'))
 
     if not new_pin.isdigit() or len(new_pin) != 4:
-        return jsonify({'ok': False, 'msg': 'PIN sirf 4 digit ka hona chahiye!'}), 400
+        return jsonify({'ok': False, 'msg': 'PIN must be exactly 4 digits!'}), 400
 
     users = load_users()
     if uid not in users:
-        return jsonify({'ok': False, 'msg': 'User nahi mila!'}), 404
+        return jsonify({'ok': False, 'msg': 'User not found!'}), 404
     if uid == current_user_id():
-        return jsonify({'ok': False, 'msg': 'Apna PIN yahan se reset nahi kar sakte!'}), 400
+        return jsonify({'ok': False, 'msg': 'You cannot reset your own PIN here!'}), 400
 
     users[uid]['pin_hash'] = hash_pin(new_pin)
     save_users(users)
-    return jsonify({'ok': True, 'msg': f'{users[uid]["name"]} ka PIN reset ho gaya! Naya PIN: {new_pin}'})
+    return jsonify({'ok': True, 'msg': f'{users[uid]["name"]}\'s PIN has been reset! New PIN: {new_pin}'})
 
 
 @app.route('/api/admin/delete-user', methods=['POST'])
@@ -500,16 +501,16 @@ def api_admin_delete_user():
     uid  = str(body.get('user_id', ''))
 
     if uid == current_user_id():
-        return jsonify({'ok': False, 'msg': 'Apna khud ka account delete nahi kar sakte!'}), 400
+        return jsonify({'ok': False, 'msg': 'You cannot delete your own account!'}), 400
 
     users = load_users()
     if uid not in users:
-        return jsonify({'ok': False, 'msg': 'User nahi mila!'}), 404
+        return jsonify({'ok': False, 'msg': 'User not found!'}), 404
 
     name = users[uid].get('name', uid)
     del users[uid]
     save_users(users)
-    return jsonify({'ok': True, 'msg': f'{name} ka account delete ho gaya!'})
+    return jsonify({'ok': True, 'msg': f'{name}\'s account has been deleted!'})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=7730, debug=False)

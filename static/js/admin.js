@@ -17,19 +17,19 @@ const ADMIN = (() => {
       const res  = await fetch('/api/admin/users');
       const data = await res.json();
       if (!data.ok) {
-        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🚫</div><div class="empty-state-title">Access Denied</div></div>';
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔒</div><div class="empty-state-title">Access Denied</div></div>';
         return;
       }
       renderUsers(data.users);
     } catch (e) {
-      container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-title">Load nahi hua!</div></div>';
+      container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📡</div><div class="empty-state-title">Could not load!</div></div>';
     }
   }
 
   function renderUsers(users) {
     const container = document.getElementById('admin-users-list');
     if (!users || users.length === 0) {
-      container.innerHTML = '<div class="empty-state"><div class="empty-state-title">Koi user nahi mila.</div></div>';
+      container.innerHTML = '<div class="empty-state"><div class="empty-state-title">No users found.</div></div>';
       return;
     }
 
@@ -47,7 +47,7 @@ const ADMIN = (() => {
         <div class="admin-user-info">
           <div class="admin-user-name">
             ${escHtml(u.name)}
-            <span class="role-chip ${isAdmin ? 'role-admin' : 'role-user'}">${isAdmin ? '👑 Admin' : '👤 User'}</span>
+            <span class="role-chip ${isAdmin ? 'role-admin' : 'role-user'}">${isAdmin ? 'Admin' : 'User'}</span>
             ${isSelf ? '<span class="self-tag">You</span>' : ''}
           </div>
           <div class="admin-user-sub">${escHtml(u.email)} · ${escHtml(u.mobile)} · ${escHtml(u.block || '—')}</div>
@@ -85,7 +85,7 @@ const ADMIN = (() => {
     const input = document.getElementById('reset-pin-input-' + userId);
     const newPin = input ? String(input.value).trim() : '';
     if (!/^\d{4}$/.test(newPin)) {
-      showToast('PIN sirf 4 digit ka hona chahiye!', 'red'); return;
+      showToast('PIN must be exactly 4 digits!', 'red'); return;
     }
     try {
       const res  = await fetch('/api/admin/reset-pin', {
@@ -95,11 +95,11 @@ const ADMIN = (() => {
       });
       const data = await res.json();
       if (data.ok) {
-        showToast(data.msg || `${userName} ka PIN reset ho gaya!`);
+        showToast(data.msg || `${userName}'s PIN has been reset!`);
         const area = document.getElementById('reset-pin-area-' + userId);
         if (area) area.style.display = 'none';
       } else {
-        showToast(data.msg || 'Reset nahi hua!', 'red');
+        showToast(data.msg || 'Reset failed!', 'red');
       }
     } catch (e) {
       showToast('Server error!', 'red');
@@ -109,8 +109,8 @@ const ADMIN = (() => {
   function confirmDelete(userId, userName) {
     showConfirm({
       icon: '🗑️',
-      title: 'User Delete Karein?',
-      msg: `"${userName}" ka account permanently delete ho jayega. Uska saara data bhi hata diya jayega. Ye action undo nahi ho sakta!`,
+      title: 'Delete User?',
+      msg: `"${userName}" will be permanently deleted along with all their data. This action cannot be undone!`,
       okLabel: 'Delete',
       okClass: 'btn-danger',
       onOk: async () => {
@@ -122,10 +122,10 @@ const ADMIN = (() => {
           });
           const data = await res.json();
           if (data.ok) {
-            showToast(data.msg || 'User delete ho gaya!');
+            showToast(data.msg || 'User deleted!');
             await loadUsers();
           } else {
-            showToast(data.msg || 'Delete nahi hua!', 'red');
+            showToast(data.msg || 'Delete failed!', 'red');
           }
         } catch (e) {
           showToast('Server error!', 'red');

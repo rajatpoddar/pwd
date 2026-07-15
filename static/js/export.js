@@ -4,7 +4,7 @@
 
 const EXPORT = (() => {
   function toExcel() {
-    showToast('Excel export ho raha hai...', 'green');
+    showToast('📊 Exporting to Excel — NregaBot.com', 'green');
     const a = document.createElement('a');
     a.href = '/api/export/excel';
     a.download = '';

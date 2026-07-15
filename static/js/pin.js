@@ -41,15 +41,15 @@ const PIN = (() => {
         clearError();
         await APP.showApp(data);
       } else {
-        setError(data.msg || 'Galat PIN! Dobara try karein.');
+        setError(data.msg || 'Wrong PIN! Please try again.');
         const screen = document.getElementById('pin-screen-inner');
         screen.classList.remove('shake');
         void screen.offsetWidth;
         screen.classList.add('shake');
-        setTimeout(() => screen.classList.remove('shake'), 500);
+        setTimeout(() => screen.classList.remove('shake'), 650);
       }
     } catch (e) {
-      setError('Server se connect nahi ho paya!');
+      setError('Could not connect to server!');
     }
   }
 

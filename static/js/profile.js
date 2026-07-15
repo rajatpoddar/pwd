@@ -33,7 +33,7 @@ const PROFILE = (() => {
     try {
       const res  = await fetch('/api/profile');
       const data = await res.json();
-      if (!data.ok) { showToast('Profile load nahi hua!', 'red'); return; }
+      if (!data.ok) { showToast('Could not load profile!', 'red'); return; }
 
       document.getElementById('pp-name').textContent   = data.name   || '—';
       document.getElementById('pp-email').textContent  = data.email  || '—';
@@ -46,7 +46,7 @@ const PROFILE = (() => {
 
       // Role badge
       const roleBadge = document.getElementById('pp-role-badge');
-      roleBadge.textContent = data.role === 'admin' ? '👑 Admin' : '👤 User';
+      roleBadge.textContent = data.role === 'admin' ? 'Admin' : 'User';
       roleBadge.className   = 'profile-role-badge ' + (data.role === 'admin' ? 'role-admin' : 'role-user');
 
       // Timeout
@@ -59,7 +59,7 @@ const PROFILE = (() => {
       document.getElementById('pp-confirm-pin').value = '';
 
     } catch (e) {
-      showToast('Server error: Profile load nahi hua!', 'red');
+      showToast('Server error: Could not load profile!', 'red');
     }
   }
 
@@ -90,9 +90,9 @@ const PROFILE = (() => {
         _updateTimeoutUI(timeout);
         APP.setAutoLockTimeout(timeout);
         const labels = { 15: '15 Minutes', 60: '1 Hour', 1440: '24 Hours' };
-        showToast(`✓ Auto-lock: ${labels[timeout] || timeout + ' min'} set ho gaya!`);
+        showToast(`✓ Auto-lock: ${labels[timeout] || timeout + ' min'} set!`);
       } else {
-        showToast(data.msg || 'Update nahi hua!', 'red');
+        showToast(data.msg || 'Update failed!', 'red');
       }
     } catch (e) {
       showToast('Server error!', 'red');
@@ -105,7 +105,7 @@ const PROFILE = (() => {
     const confirm_pin = document.getElementById('pp-confirm-pin').value.trim();
 
     if (!old_pin || !new_pin || !confirm_pin) {
-      showToast('Saare PIN fields bharein!', 'red'); return;
+      showToast('Please fill in all PIN fields!', 'red'); return;
     }
     try {
       const res  = await fetch('/api/profile/change-pin', {
@@ -115,12 +115,12 @@ const PROFILE = (() => {
       });
       const data = await res.json();
       if (data.ok) {
-        showToast(data.msg || '✓ PIN change ho gaya!');
+        showToast(data.msg || '✓ PIN changed!');
         document.getElementById('pp-old-pin').value     = '';
         document.getElementById('pp-new-pin').value     = '';
         document.getElementById('pp-confirm-pin').value = '';
       } else {
-        showToast(data.msg || 'PIN change nahi hua!', 'red');
+        showToast(data.msg || 'PIN change failed!', 'red');
       }
     } catch (e) {
       showToast('Server error!', 'red');

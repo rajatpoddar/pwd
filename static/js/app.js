@@ -30,13 +30,67 @@ function setThemeColor(color) {
   if (meta) meta.setAttribute('content', color);
 }
 
+// ── Dark Mode Management ─────────────────────────────────────────────────────
+const THEME = {
+  _init() {
+    const toggle = document.getElementById('theme-toggle');
+    if (!toggle) return;
+
+    // Check localStorage first, then system preference
+    const stored = localStorage.getItem('theme');
+    if (stored === 'dark') {
+      this.enable();
+    } else if (stored === 'light') {
+      this.disable();
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      this.enable();
+    }
+
+    toggle.addEventListener('click', () => {
+      if (document.documentElement.classList.contains('dark-mode')) {
+        this.disable();
+      } else {
+        this.enable();
+      }
+    });
+
+    // Listen for system theme changes
+    if (window.matchMedia) {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+        if (!localStorage.getItem('theme')) {
+          if (e.matches) this.enable();
+          else this.disable();
+        }
+      });
+    }
+  },
+
+  enable() {
+    document.documentElement.classList.add('dark-mode');
+    localStorage.setItem('theme', 'dark');
+    const sun = document.getElementById('theme-icon-sun');
+    const moon = document.getElementById('theme-icon-moon');
+    if (sun) sun.style.display = 'none';
+    if (moon) moon.style.display = 'block';
+  },
+
+  disable() {
+    document.documentElement.classList.remove('dark-mode');
+    localStorage.setItem('theme', 'light');
+    const sun = document.getElementById('theme-icon-sun');
+    const moon = document.getElementById('theme-icon-moon');
+    if (sun) sun.style.display = 'block';
+    if (moon) moon.style.display = 'none';
+  }
+};
+
 // ── Custom Confirm Dialog (replaces browser confirm()) ────────────────────────
 function showConfirm(opts) {
   // opts: { icon, title, msg, okLabel, okClass, onOk }
   const overlay = document.getElementById('confirm-dialog');
   document.getElementById('confirm-icon').textContent  = opts.icon  || '⚠️';
-  document.getElementById('confirm-title').textContent = opts.title || 'Confirm karein';
-  document.getElementById('confirm-msg').textContent   = opts.msg   || 'Kya aap sure hain?';
+  document.getElementById('confirm-title').textContent = opts.title || 'Confirm';
+  document.getElementById('confirm-msg').textContent   = opts.msg   || 'Are you sure?';
   const okBtn = document.getElementById('confirm-ok-btn');
   okBtn.textContent = opts.okLabel || 'Confirm';
   okBtn.className = 'btn ' + (opts.okClass || 'btn-danger');
@@ -110,16 +164,22 @@ const APP = (() => {
   let currentCategory = null;
 
   async function loadData() {
+    // Show skeleton loader while fetching
+    const skeleton = document.getElementById('skeleton-loader');
+    if (skeleton) skeleton.style.display = 'flex';
     try {
       const res = await fetch('/api/data');
       if (res.status === 401 || res.status === 403) {
+        if (skeleton) skeleton.style.display = 'none';
         AUTH.doLogout(); return;
       }
       _data = await res.json();
       if (!_data.categories) _data = { categories: [] };
     } catch (e) {
-      showToast('Data load nahi ho paya!', 'red');
+      showToast('Could not load data!', 'red');
       _data = { categories: [] };
+    } finally {
+      if (skeleton) skeleton.style.display = 'none';
     }
   }
 
@@ -134,11 +194,11 @@ const APP = (() => {
         body: JSON.stringify(data)
       });
       if (res.status === 401 || res.status === 403) {
-        showToast('Session expire ho gaya! Dobara login karein.', 'red');
+        showToast('Session expired! Please login again.', 'red');
         AUTH.doLogout();
       }
     } catch (e) {
-      showToast('Data save nahi ho paya!', 'red');
+      showToast('Could not save data!', 'red');
     }
   }
 
@@ -162,7 +222,7 @@ const APP = (() => {
     if (!minutes) return;
     const ms = minutes * 60 * 1000;
     _lockTimer = setTimeout(() => {
-      showToast('⏱ Auto-lock ho gaya!', 'orange');
+      showToast('⏱ Auto-locked!', 'orange');
       setTimeout(lock, 1000);
     }, ms);
     _lastActivity = Date.now();
@@ -262,6 +322,9 @@ const APP = (() => {
     if (searchInput) {
       searchInput.addEventListener('input', () => ENTRIES.renderTable(searchInput.value));
     }
+
+    // Init dark mode
+    THEME._init();
 
     AUTH.checkSession();
   }

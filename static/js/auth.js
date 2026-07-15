@@ -35,7 +35,7 @@ const AUTH = (() => {
     document.getElementById('screen-register').style.display = 'none';
     document.getElementById('screen-pin').style.display      = 'flex';
     _hideApp();
-    document.getElementById('pin-welcome-name').textContent  = `Namaste, ${name}! 👋`;
+    document.getElementById('pin-welcome-name').textContent  = `Welcome, ${name}!`;
     // reset pin buffer
     PIN.reset();
   }
@@ -47,7 +47,7 @@ const AUTH = (() => {
     errEl.textContent = '';
 
     if (!identifier) {
-      errEl.textContent = 'Email ya mobile number dalein!';
+      errEl.textContent = 'Please enter your email or mobile number!';
       return;
     }
 
@@ -64,12 +64,12 @@ const AUTH = (() => {
       if (data.ok) {
         showPinScreen(data.name);
       } else {
-        errEl.textContent = data.msg || 'Login nahi hua!';
+        errEl.textContent = data.msg || 'Login failed!';
       }
     } catch (e) {
-      errEl.textContent = 'Server se connect nahi ho paya!';
+      errEl.textContent = 'Could not connect to server!';
     } finally {
-      btn.disabled = false; btn.textContent = 'Aage Badhein →';
+      btn.disabled = false; btn.textContent = 'Login →';
     }
   }
 
@@ -85,16 +85,16 @@ const AUTH = (() => {
     errEl.textContent = '';
 
     if (!name || !block || !email || !mobile || !pin || !pinConf) {
-      errEl.textContent = 'Saare fields zaruri hain!'; return;
+      errEl.textContent = 'All fields are required!'; return;
     }
     if (pin !== pinConf) {
-      errEl.textContent = 'Dono PIN match nahi karte!'; return;
+      errEl.textContent = 'PINs do not match!'; return;
     }
     if (!/^\d{4}$/.test(pin)) {
-      errEl.textContent = 'PIN sirf 4 digit ka hona chahiye!'; return;
+      errEl.textContent = 'PIN must be exactly 4 digits!'; return;
     }
     if (!/^\d{10}$/.test(mobile)) {
-      errEl.textContent = 'Mobile number 10 digit ka hona chahiye!'; return;
+      errEl.textContent = 'Mobile number must be 10 digits!'; return;
     }
 
     const btn = document.getElementById('btn-register');
@@ -108,15 +108,15 @@ const AUTH = (() => {
       });
       const data = await res.json();
       if (data.ok) {
-        showToast(data.msg || 'Registration ho gayi!', 'green');
+        showToast(data.msg || 'Registration successful!', 'green');
         setTimeout(showLogin, 800);
       } else {
-        errEl.textContent = data.msg || 'Registration nahi hui!';
+        errEl.textContent = data.msg || 'Registration failed!';
       }
     } catch (e) {
       errEl.textContent = 'Server error!';
     } finally {
-      btn.disabled = false; btn.textContent = 'Register Karein';
+      btn.disabled = false; btn.textContent = 'Register';
     }
   }
 

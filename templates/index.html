@@ -1,13 +1,20 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#0f172a" id="meta-theme-color">
+  <meta name="theme-color" content="#6366f1" id="meta-theme-color">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Password Manager</title>
+  <meta name="description" content="Password Manager by NregaBot.com. Securely manage all your passwords and credentials.">
+  <meta name="application-name" content="Password Manager">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="/static/logo.png">
+  <title>Password Manager — NregaBot.com</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
@@ -16,21 +23,50 @@
 <div id="screen-login" class="auth-screen">
   <div class="auth-card">
     <div class="auth-brand">
-      <div class="auth-brand-icon">🔐</div>
-      <span class="auth-brand-text">Password Manager</span>
+      <div class="auth-brand-icon">
+        <img src="/static/logo.png" alt="Password Manager" width="28" height="28" style="border-radius:6px;object-fit:contain;">
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <span class="auth-brand-text">Password Manager</span>
+        <span class="auth-brand-sub">by NregaBot.com</span>
+      </div>
     </div>
     <h2 class="auth-title">Welcome Back</h2>
-    <p class="auth-sub">Apna email ya mobile number dalein</p>
+    <p class="auth-sub">Enter your email or mobile number to sign in</p>
     <div class="form-group">
-      <label for="login-identifier">Email ya Mobile Number</label>
+      <label for="login-identifier">Email or Mobile Number</label>
       <input type="text" id="login-identifier"
-             placeholder="email@example.com ya 9876543210"
+             placeholder="email@example.com or 9876543210"
              inputmode="email" autocomplete="username">
     </div>
     <div id="login-error" class="form-error"></div>
-    <button class="btn btn-primary btn-block" id="btn-login">Aage Badhein →</button>
+    <button class="btn btn-primary btn-block" id="btn-login">Login →</button>
     <div class="auth-divider">ya</div>
-    <button class="btn btn-ghost btn-block" id="btn-goto-register">Naya Account Banayein</button>
+    <button class="btn btn-ghost btn-block" id="btn-goto-register">Create New Account</button>
+  </div>
+
+  <!-- App Description on Login screen -->
+  <div class="app-description">
+    <div class="app-desc-grid">
+      <div class="app-desc-card">
+        <div class="app-desc-icon">🔐</div>
+        <div class="app-desc-label">Secure Storage</div>
+        <div class="app-desc-text">Store passwords & credentials with PIN-protected encryption.</div>
+      </div>
+      <div class="app-desc-card">
+        <div class="app-desc-icon">📂</div>
+        <div class="app-desc-label">Smart Categories</div>
+        <div class="app-desc-text">Organize entries by category — NREGA, Bank, Email & more.</div>
+      </div>
+      <div class="app-desc-card">
+        <div class="app-desc-icon">⬇️</div>
+        <div class="app-desc-label">Excel Export</div>
+        <div class="app-desc-text">Export all data to styled Excel sheets with one click.</div>
+      </div>
+    </div>
+    <div class="app-desc-footer">
+      Powered by <strong>NregaBot.com</strong> — Secure, Fast & Free
+    </div>
   </div>
 </div>
 
@@ -38,17 +74,22 @@
 <div id="screen-register" class="auth-screen" style="display:none">
   <div class="auth-card">
     <div class="auth-brand">
-      <div class="auth-brand-icon">📝</div>
-      <span class="auth-brand-text">Naya Account</span>
+      <div class="auth-brand-icon">
+        <img src="/static/logo.png" alt="Password Manager" width="28" height="28" style="border-radius:6px;object-fit:contain;">
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <span class="auth-brand-text">Password Manager</span>
+        <span class="auth-brand-sub">by NregaBot.com</span>
+      </div>
     </div>
-    <h2 class="auth-title">Register Karein</h2>
-    <p class="auth-sub">Apni details bharein</p>
+    <h2 class="auth-title">Create Account</h2>
+    <p class="auth-sub">Fill in your details to create a new account</p>
     <div class="form-group">
-      <label for="reg-name">Pura Naam *</label>
-      <input type="text" id="reg-name" placeholder="Apna naam likhein" autocomplete="name">
+      <label for="reg-name">Full Name *</label>
+      <input type="text" id="reg-name" placeholder="Enter your name" autocomplete="name">
     </div>
     <div class="form-group">
-      <label for="reg-block">Block Naam *</label>
+      <label for="reg-block">Block Name *</label>
       <input type="text" id="reg-block" placeholder="e.g. Peterbar, Khijri" autocomplete="off">
     </div>
     <div class="form-group">
@@ -66,23 +107,49 @@
              inputmode="numeric" autocomplete="new-password">
     </div>
     <div class="form-group">
-      <label for="reg-pin-confirm">PIN Confirm Karein *</label>
+      <label for="reg-pin-confirm">Confirm PIN *</label>
       <input type="password" id="reg-pin-confirm" placeholder="••••" maxlength="4"
              inputmode="numeric" autocomplete="new-password">
     </div>
     <div id="reg-error" class="form-error"></div>
-    <button class="btn btn-primary btn-block" id="btn-register">Register Karein</button>
+    <button class="btn btn-primary btn-block" id="btn-register">Register</button>
     <div class="auth-divider">ya</div>
-    <button class="btn btn-ghost btn-block" id="btn-goto-login">Pehle Se Account Hai? Login Karein</button>
+    <button class="btn btn-ghost btn-block" id="btn-goto-login">Already have an account? Login</button>
+  </div>
+
+  <!-- App Description on Register screen -->
+  <div class="app-description">
+    <div class="app-desc-grid">
+      <div class="app-desc-card">
+        <div class="app-desc-icon">🔐</div>
+        <div class="app-desc-label">Secure Storage</div>
+        <div class="app-desc-text">Store passwords & credentials with PIN-protected encryption.</div>
+      </div>
+      <div class="app-desc-card">
+        <div class="app-desc-icon">📂</div>
+        <div class="app-desc-label">Smart Categories</div>
+        <div class="app-desc-text">Organize entries by category — NREGA, Bank, Email & more.</div>
+      </div>
+      <div class="app-desc-card">
+        <div class="app-desc-icon">⬇️</div>
+        <div class="app-desc-label">Excel Export</div>
+        <div class="app-desc-text">Export all data to styled Excel sheets with one click.</div>
+      </div>
+    </div>
+    <div class="app-desc-footer">
+      Powered by <strong>NregaBot.com</strong> — Secure, Fast & Free
+    </div>
   </div>
 </div>
 
 <!-- ═══════════════════════ SCREEN: PIN ══════════════════════════════ -->
 <div id="screen-pin" class="auth-screen" style="display:none">
   <div class="pin-card" id="pin-screen-inner">
-    <div class="pin-lock-icon">🔒</div>
+    <div class="pin-lock-icon">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
     <h2 id="pin-welcome-name">Welcome!</h2>
-    <p class="auth-sub">Dashboard unlock karne ke liye PIN dalein</p>
+    <p class="auth-sub">Enter your 4-digit PIN</p>
     <div id="pin-dots">
       <div class="dot" id="d0"></div>
       <div class="dot" id="d1"></div>
@@ -104,7 +171,7 @@
       <button class="key del" data-key="back">⌫</button>
     </div>
     <div id="pin-error" class="pin-error-msg"></div>
-    <button class="btn btn-ghost btn-sm pin-logout-btn" id="btn-pin-logout">← Dobara Login Karein</button>
+    <button class="btn btn-ghost btn-sm pin-logout-btn" id="btn-pin-logout">← Login Again</button>
   </div>
 </div>
 
@@ -114,18 +181,29 @@
   <!-- Top App Bar -->
   <header class="topbar">
     <div class="topbar-brand">
-      <div class="topbar-icon">🔐</div>
-      <h1>Password Manager</h1>
+      <div class="topbar-icon">
+        <img src="/static/logo.png" alt="Password Manager" width="18" height="18" style="border-radius:4px;object-fit:contain;">
+      </div>
+      <h1>Password Manager <span class="topbar-brand-sub">by NregaBot.com</span></h1>
     </div>
     <div class="topbar-actions">
       <button class="btn btn-success btn-sm" id="btn-export" title="Excel Export">
-        <span>⬇</span><span class="topbar-lbl"> Excel</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg><span class="topbar-lbl"> Excel</span>
       </button>
-      <button class="btn btn-ghost btn-sm btn-icon" id="btn-open-profile" title="Profile" aria-label="Profile">👤</button>
+      <button class="btn btn-ghost btn-sm btn-icon" id="btn-open-profile" title="Profile" aria-label="Profile">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </button>
       <button id="admin-badge" class="admin-badge" style="display:none" title="Admin Panel">
-        ⚙ <span class="topbar-lbl">Admin</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <span class="topbar-lbl">Admin</span>
       </button>
-      <button class="btn btn-ghost btn-sm btn-icon" id="btn-lock" title="Lock App" aria-label="Lock">🔒</button>
+      <button id="theme-toggle" title="Toggle theme" aria-label="Toggle theme">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="theme-icon-sun"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="theme-icon-moon" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <button class="btn btn-ghost btn-sm btn-icon" id="btn-lock" title="Lock App" aria-label="Lock">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </button>
     </div>
   </header>
 
@@ -134,13 +212,19 @@
     <!-- Desktop sidebar (hidden on mobile via CSS) -->
     <nav class="desktop-sidebar" id="desktop-sidebar" style="display:none">
       <button class="desktop-sidebar-item active" data-nav="passwords">
-        <span class="nav-icon">🔑</span> Passwords
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </span> Passwords
       </button>
       <button class="desktop-sidebar-item" data-nav="export" id="sidebar-export">
-        <span class="nav-icon">⬇</span> Export Excel
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        </span> Export Excel
       </button>
       <button class="desktop-sidebar-item" data-nav="profile" id="sidebar-profile">
-        <span class="nav-icon">👤</span> Profile
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </span> Profile
       </button>
     </nav>
 
@@ -151,6 +235,21 @@
         <div class="category-bar" id="tabs-bar">
           <button class="btn-add-cat" id="add-category-btn">＋ Category</button>
         </div>
+        <!-- Skeleton loader shown while data loads -->
+        <div id="skeleton-loader" class="skeleton-loader" style="display:none">
+          <div class="skeleton-row">
+            <div class="skeleton-shimmer"></div>
+            <div class="skeleton-shimmer"></div>
+          </div>
+          <div class="skeleton-row">
+            <div class="skeleton-shimmer"></div>
+            <div class="skeleton-shimmer"></div>
+          </div>
+          <div class="skeleton-row">
+            <div class="skeleton-shimmer"></div>
+            <div class="skeleton-shimmer"></div>
+          </div>
+        </div>
 
         <!-- Section header -->
         <div class="section-header">
@@ -159,8 +258,16 @@
             <span class="section-count" id="entry-count">0</span>
           </div>
           <div class="section-actions">
-            <button class="btn btn-ghost btn-sm" id="btn-edit-cat" title="Rename category">✏️ <span class="topbar-lbl">Rename</span></button>
-            <button class="btn btn-ghost btn-sm" id="btn-del-cat" title="Delete category">🗑</button>
+            <button class="btn-toggle-pass" id="btn-toggle-pass" title="Show passwords" style="display:none" aria-label="Toggle password visibility">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+            <button class="btn btn-ghost btn-sm" id="btn-edit-cat" title="Rename category">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+              <span class="topbar-lbl">Rename</span>
+            </button>
+            <button class="btn btn-ghost btn-sm" id="btn-del-cat" title="Delete category">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
             <button class="btn btn-ghost btn-sm" id="btn-bulk-add">+ <span class="topbar-lbl">Bulk</span></button>
             <button class="btn btn-primary btn-sm" id="btn-single-add">+ Entry</button>
           </div>
@@ -168,7 +275,9 @@
 
         <!-- Search -->
         <div class="search-bar">
-          <span class="search-icon">🔍</span>
+          <span class="search-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          </span>
           <input type="search" id="search-input" placeholder="Search entries..." autocomplete="off" inputmode="search">
         </div>
 
@@ -183,7 +292,7 @@
 
         <!-- Profile inline page -->
         <div id="profile-page">
-          <button class="profile-page-back" id="profile-page-back">← Passwords pe Wapis Jaein</button>
+          <button class="profile-page-back" id="profile-page-back">← Back to Passwords</button>
           <div class="profile-page-hero">
             <div class="profile-page-avatar" id="pp-avatar">R</div>
             <div class="profile-page-hero-info">
@@ -196,15 +305,24 @@
           <div class="profile-page-card">
             <div class="profile-page-section-title">Account Info</div>
             <div class="profile-info-row">
-              <span class="pir-label">📧 Email</span>
+              <span class="pir-label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                Email
+              </span>
               <span class="pir-value" id="pp-email">—</span>
             </div>
             <div class="profile-info-row">
-              <span class="pir-label">📱 Mobile</span>
+              <span class="pir-label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                Mobile
+              </span>
               <span class="pir-value" id="pp-mobile">—</span>
             </div>
             <div class="profile-info-row">
-              <span class="pir-label">🏘 Block</span>
+              <span class="pir-label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                Block
+              </span>
               <span class="pir-value" id="pp-block">—</span>
             </div>
           </div>
@@ -212,7 +330,7 @@
           <!-- Auto-lock -->
           <div class="profile-page-card">
             <div class="profile-page-section-title">Auto-Lock Timeout</div>
-            <p class="setting-desc">Browser band hone par ya is samay baad lock ho jayega.</p>
+            <p class="setting-desc">Auto-locks after the selected timeout period.</p>
             <div class="timeout-options" id="pp-timeout-options">
               <button class="timeout-btn" data-timeout="15">15 Min</button>
               <button class="timeout-btn" data-timeout="60">1 Hour</button>
@@ -222,28 +340,31 @@
 
           <!-- Change PIN -->
           <div class="profile-page-card">
-            <div class="profile-page-section-title">PIN Change Karein</div>
+            <div class="profile-page-section-title">Change PIN</div>
             <div class="form-group" style="padding:14px 18px 0">
-              <label for="pp-old-pin">Purana PIN</label>
+              <label for="pp-old-pin">Old PIN</label>
               <input type="password" id="pp-old-pin" maxlength="4" placeholder="••••" inputmode="numeric" autocomplete="off">
             </div>
             <div class="form-group" style="padding:0 18px">
-              <label for="pp-new-pin">Naya PIN</label>
+              <label for="pp-new-pin">New PIN</label>
               <input type="password" id="pp-new-pin" maxlength="4" placeholder="••••" inputmode="numeric" autocomplete="off">
             </div>
             <div class="form-group" style="padding:0 18px">
-              <label for="pp-confirm-pin">Confirm Naya PIN</label>
+              <label for="pp-confirm-pin">Confirm New PIN</label>
               <input type="password" id="pp-confirm-pin" maxlength="4" placeholder="••••" inputmode="numeric" autocomplete="off">
             </div>
             <div style="padding:0 18px 18px">
-              <button class="btn btn-primary" id="pp-save-pin">PIN Update Karein</button>
+              <button class="btn btn-primary" id="pp-save-pin">Update PIN</button>
             </div>
           </div>
 
           <!-- Logout -->
           <div class="profile-page-card" style="margin-bottom:24px">
             <div style="padding:16px 18px">
-              <button class="btn btn-ghost" id="pp-logout-btn" style="width:100%;justify-content:center;">🚪 Logout</button>
+              <button class="btn btn-ghost" id="pp-logout-btn" style="width:100%;justify-content:center;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                Logout
+              </button>
             </div>
           </div>
         </div>
@@ -254,14 +375,20 @@
   <!-- Bottom Navigation Bar (mobile) -->
   <nav class="bottom-nav" role="navigation" aria-label="Main navigation">
     <button class="nav-item active" data-nav="passwords" aria-label="Passwords">
-      <span class="nav-icon">🔑</span>
+      <span class="nav-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </span>
       <span class="nav-label">Passwords</span>
     </button>
     <div class="nav-fab">
-      <button class="fab-btn" id="fab-add-entry" aria-label="Add entry">＋</button>
+      <button class="fab-btn" id="fab-add-entry" aria-label="Add entry">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
     </div>
     <button class="nav-item" data-nav="export" id="nav-export-btn" aria-label="Export">
-      <span class="nav-icon">⬇</span>
+      <span class="nav-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      </span>
       <span class="nav-label">Export</span>
     </button>
   </nav>
@@ -272,10 +399,11 @@
 
 <!-- ════════════════════════ CONFIRM DIALOG ══════════════════════════ -->
 <div class="confirm-overlay" id="confirm-dialog">
-  <div class="confirm-box">
-    <div class="confirm-icon" id="confirm-icon">⚠️</div>
-    <div class="confirm-title" id="confirm-title">Confirm karein</div>
-    <div class="confirm-msg" id="confirm-msg">Kya aap sure hain?</div>
+  <div class="confirm-box">      <div class="confirm-icon" id="confirm-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01"/></svg>
+      </div>
+    <div class="confirm-title" id="confirm-title">Confirm</div>
+    <div class="confirm-msg" id="confirm-msg">Are you sure?</div>
     <div class="confirm-actions">
       <button class="btn btn-ghost" id="confirm-cancel-btn">Cancel</button>
       <button class="btn btn-danger" id="confirm-ok-btn">Confirm</button>
@@ -287,7 +415,7 @@
 <div class="modal-overlay" id="entry-modal">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="entry-modal-title">
     <div class="modal-header">
-      <h3 id="entry-modal-title">Entry Add Karein</h3>
+      <h3 id="entry-modal-title">Add Entry</h3>
       <button class="modal-close-btn" data-close="entry-modal" aria-label="Close">✕</button>
     </div>
     <div class="modal-body">
@@ -304,7 +432,7 @@
 <div class="modal-overlay" id="cat-modal">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cat-modal-title">
     <div class="modal-header">
-      <h3 id="cat-modal-title">Naya Category</h3>
+      <h3 id="cat-modal-title">New Category</h3>
       <button class="modal-close-btn" data-close="cat-modal" aria-label="Close">✕</button>
     </div>
     <div class="modal-body">
@@ -313,14 +441,14 @@
         <input type="text" id="cat-name-input" placeholder="e.g. NREGA, Bank, Email">
       </div>
       <div class="form-group">
-        <label>Columns Define Karein</label>
+        <label>Define Columns</label>
         <div id="col-fields"></div>
-        <button id="add-col-btn">＋ Column Add Karein</button>
+        <button id="add-col-btn">＋ Add Column</button>
       </div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" data-close="cat-modal">Cancel</button>
-      <button class="btn btn-primary" id="btn-save-category">Category Banayein</button>
+      <button class="btn btn-primary" id="btn-save-category">Create Category</button>
     </div>
   </div>
 </div>
@@ -329,7 +457,7 @@
 <div class="modal-overlay" id="bulk-entry-modal">
   <div class="modal modal-wide" role="dialog" aria-modal="true" aria-labelledby="bulk-modal-title">
     <div class="modal-header">
-      <h3 id="bulk-modal-title">Bulk Entry Add</h3>
+      <h3 id="bulk-modal-title">Add Bulk Entries</h3>
       <button class="modal-close-btn" data-close="bulk-entry-modal" aria-label="Close">✕</button>
     </div>
     <div class="modal-body">
@@ -340,7 +468,7 @@
         </table>
       </div>
       <div class="bulk-footer">
-        <button id="add-bulk-row-btn">＋ Row Add Karein</button>
+        <button id="add-bulk-row-btn">＋ Add Row</button>
         <span id="bulk-count-info"></span>
       </div>
     </div>
@@ -366,22 +494,31 @@
     <div class="profile-section">
       <div class="profile-section-title">Account Info</div>
       <div class="profile-info-row">
-        <span class="pir-label">📧 Email</span>
+        <span class="pir-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          Email
+        </span>
         <span class="pir-value" id="profile-email-display">—</span>
       </div>
       <div class="profile-info-row">
-        <span class="pir-label">📱 Mobile</span>
+        <span class="pir-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          Mobile
+        </span>
         <span class="pir-value" id="profile-mobile-display">—</span>
       </div>
       <div class="profile-info-row">
-        <span class="pir-label">🏘 Block</span>
+        <span class="pir-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Block
+        </span>
         <span class="pir-value" id="profile-block-display">—</span>
       </div>
     </div>
 
     <div class="profile-section">
       <div class="profile-section-title">Auto-Lock Timeout</div>
-      <p class="setting-desc">Browser tab band hone par ya is samay baad dashboard lock ho jayega.</p>
+      <p class="setting-desc">Dashboard will auto-lock after this duration of inactivity.</p>
       <div class="timeout-options" id="timeout-options">
         <button class="timeout-btn" data-timeout="15">15 Min</button>
         <button class="timeout-btn" data-timeout="60">1 Hour</button>
@@ -390,28 +527,29 @@
     </div>
 
     <div class="profile-section">
-      <div class="profile-section-title">PIN Change Karein</div>
+      <div class="profile-section-title">Change PIN</div>
       <div class="form-group">
-        <label for="old-pin-input">Purana PIN</label>
+        <label for="old-pin-input">Old PIN</label>
         <input type="password" id="old-pin-input" maxlength="4"
                placeholder="••••" inputmode="numeric" autocomplete="off">
       </div>
       <div class="form-group">
-        <label for="new-pin-input">Naya PIN</label>
+        <label for="new-pin-input">New PIN</label>
         <input type="password" id="new-pin-input" maxlength="4"
                placeholder="••••" inputmode="numeric" autocomplete="off">
       </div>
       <div class="form-group">
-        <label for="confirm-pin-input">Confirm Naya PIN</label>
+        <label for="confirm-pin-input">Confirm New PIN</label>
         <input type="password" id="confirm-pin-input" maxlength="4"
                placeholder="••••" inputmode="numeric" autocomplete="off">
       </div>
-      <button class="btn btn-primary" id="btn-save-pin">PIN Update Karein</button>
+      <button class="btn btn-primary" id="btn-save-pin">Update PIN</button>
     </div>
 
     <div class="profile-section" style="padding-bottom:24px">
       <button class="btn btn-ghost" id="btn-logout-profile" style="width:100%;justify-content:center;">
-        🚪 Logout
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        Logout
       </button>
     </div>
   </div>
@@ -421,12 +559,15 @@
 <div class="modal-overlay" id="admin-modal">
   <div class="modal modal-wide modal-admin" role="dialog" aria-modal="true" aria-label="Admin Panel">
     <div class="modal-header">
-      <h3>⚙️ Admin Panel</h3>
+      <h3>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        Admin Panel
+      </h3>
       <button class="modal-close-btn" data-close="admin-modal" aria-label="Close">✕</button>
     </div>
     <div class="modal-body">
       <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:16px">
-        Registered users ki list — PIN reset aur account delete karein.
+        Registered users list — reset PIN or delete accounts.
       </p>
       <div id="admin-users-list">
         <div class="loading-state">Loading...</div>
@@ -444,5 +585,14 @@
 <script src="/static/js/entries.js"></script>
 <script src="/static/js/export.js"></script>
 <script src="/static/js/app.js"></script>
+
+<!-- ════════════════════════ SERVICE WORKER ══════════════════════════ -->
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js')
+    .then(() => console.log('SW registered'))
+    .catch(function(err) { console.log('SW registration failed:', err); });
+}
+</script>
 </body>
 </html>
